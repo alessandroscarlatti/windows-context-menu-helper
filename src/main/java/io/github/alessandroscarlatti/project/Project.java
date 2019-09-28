@@ -1,6 +1,6 @@
-package com.github.alessandroscarlatti.project;
+package io.github.alessandroscarlatti.project;
 
-import com.github.alessandroscarlatti.windows.ContextMenuItem;
+import io.github.alessandroscarlatti.windows.ContextMenuItem;
 
 import java.util.ArrayList;
 import java.util.List;

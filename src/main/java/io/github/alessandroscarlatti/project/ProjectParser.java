@@ -1,14 +1,12 @@
-package com.github.alessandroscarlatti.project;
+package io.github.alessandroscarlatti.project;
 
-import com.github.alessandroscarlatti.command.Command;
-import com.github.alessandroscarlatti.command.CommandParser;
-import com.github.alessandroscarlatti.menu.Menu;
-import com.github.alessandroscarlatti.menu.MenuParser;
-import com.github.alessandroscarlatti.windows.ContextMenuItem;
+import io.github.alessandroscarlatti.command.Command;
+import io.github.alessandroscarlatti.command.CommandParser;
+import io.github.alessandroscarlatti.menu.Menu;
+import io.github.alessandroscarlatti.menu.MenuParser;
+import io.github.alessandroscarlatti.windows.ContextMenuItem;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,12 +40,12 @@ public class ProjectParser {
 
         // now parse these into context menu items
         for (Path menuDir : menuDirs) {
-            Menu menu = new MenuParser(menuDir).parseMenu();
+            Menu menu = new MenuParser(menuDir, projectConfig, null).parseMenu();
             contextMenuItems.add(menu);
         }
 
         for (Path commandDir : commandDirs) {
-            Command command = new CommandParser(commandDir).parseCommand();
+            Command command = new CommandParser(commandDir, null).parseCommand();
             contextMenuItems.add(command);
         }
 
@@ -135,7 +133,7 @@ public class ProjectParser {
 
             // if we cannot find the example file,
             // search for the first file matching the extension.
-            String extension = example.replace(".+(\\..+?$)", "$1");
+            String extension = example.replaceAll(".+(\\..+?$)", "$1");
             for (Path file : Files.list(baseDir).collect(toList())) {
                 if (Files.isRegularFile(file) && file.getFileName().toString().endsWith(extension)) {
                     System.out.println("Found file " + file + " with extension " + extension);
@@ -159,5 +157,24 @@ public class ProjectParser {
         } catch (Exception e) {
             throw new RuntimeException("Error reading properties file " + file, e);
         }
+    }
+
+    public static Properties overlayProperties(Properties[] arrProps) {
+        // overlay each prop in the list on top of the previous
+        Properties targetProps = new Properties();
+
+        if (arrProps == null)
+            return targetProps;
+
+        for (Properties props : arrProps) {
+            // ignore null properties objects
+            if (props == null)
+                continue;
+            for (Object key : props.keySet()) {
+                targetProps.put(key, props.get(key));
+            }
+        }
+
+        return targetProps;
     }
 }

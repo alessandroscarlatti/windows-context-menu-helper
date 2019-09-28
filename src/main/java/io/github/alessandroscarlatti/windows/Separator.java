@@ -1,4 +1,4 @@
-package com.github.alessandroscarlatti.windows;
+package io.github.alessandroscarlatti.windows;
 
 /**
  * @author Alessandro Scarlatti

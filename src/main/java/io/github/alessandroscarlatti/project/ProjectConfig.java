@@ -1,4 +1,4 @@
-package com.github.alessandroscarlatti.project;
+package io.github.alessandroscarlatti.project;
 
 /**
  * @author Alessandro Scarlatti

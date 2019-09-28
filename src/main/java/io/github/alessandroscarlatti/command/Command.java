@@ -1,7 +1,7 @@
-package com.github.alessandroscarlatti.command;
+package io.github.alessandroscarlatti.command;
 
-import com.github.alessandroscarlatti.windows.ContextMenuItem;
-import com.github.alessandroscarlatti.windows.Icon;
+import io.github.alessandroscarlatti.windows.ContextMenuItem;
+import io.github.alessandroscarlatti.windows.Icon;
 
 import java.nio.file.Path;
 
@@ -14,7 +14,6 @@ public class Command implements ContextMenuItem {
     private Path bat;  // the bat that will be executed when calling this command
     private Icon icon; // the icon that will be used on the menu for this command
     private String text;  // the text that will be displayed on the menu for this command
-    private String regParent;  // the full path to the location of this command key in the Registry, eg, HKEY_CLASSES_ROOT\Directory\Background\shell
     private String regName;  // the name of the Registry key for this command, eg, SomeTool.SomeCommand
 
     @Override
@@ -47,14 +46,6 @@ public class Command implements ContextMenuItem {
 
     public void setText(String text) {
         this.text = text;
-    }
-
-    public String getRegParent() {
-        return regParent;
-    }
-
-    public void setRegParent(String regParent) {
-        this.regParent = regParent;
     }
 
     public String getRegName() {

@@ -1,7 +1,7 @@
-package com.github.alessandroscarlatti.menu;
+package io.github.alessandroscarlatti.menu;
 
-import com.github.alessandroscarlatti.windows.ContextMenuItem;
-import com.github.alessandroscarlatti.windows.Icon;
+import io.github.alessandroscarlatti.windows.ContextMenuItem;
+import io.github.alessandroscarlatti.windows.Icon;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,6 @@ public class Menu implements ContextMenuItem {
     private List<ContextMenuItem> children = new ArrayList<>();  // the child items contained inside this menu, may be commands, sub-menus, or separators
     private Icon icon;  // the icon displayed for this menu
     private String text;  // the text displayed for this menu
-    private String regParent;  // the full path to the parent key for this menu, eg, HKEY_CLASSES_ROOT\Directory\Background\shell
     private String regName;  // the name of the Registry key for this menu, eg, SomeTool.SomeMenu
 
     @Override
@@ -48,14 +47,6 @@ public class Menu implements ContextMenuItem {
 
     public void setText(String text) {
         this.text = text;
-    }
-
-    public String getRegParent() {
-        return regParent;
-    }
-
-    public void setRegParent(String regParent) {
-        this.regParent = regParent;
     }
 
     public String getRegName() {
