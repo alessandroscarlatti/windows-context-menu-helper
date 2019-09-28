@@ -10,9 +10,13 @@ public class CommandConfig {
 
     private String regUid;
 
+    public static final String PROP_REG_UID = "command.reg.id";
+
     public static CommandConfig fromProperties(Properties props) {
         // the command config read from command.properties
-        return new CommandConfig();
+        CommandConfig commandConfig = new CommandConfig();
+        commandConfig.setRegUid(props.getProperty(PROP_REG_UID));
+        return commandConfig;
     }
 
     public String getRegUid() {

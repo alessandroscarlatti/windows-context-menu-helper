@@ -1,4 +1,4 @@
-package io.github.alessandroscarlatti.windows;
+package io.github.alessandroscarlatti.windows.menu;
 
 import java.nio.file.Path;
 

@@ -3,8 +3,8 @@ package io.github.alessandroscarlatti.menu;
 import io.github.alessandroscarlatti.command.Command;
 import io.github.alessandroscarlatti.command.CommandParser;
 import io.github.alessandroscarlatti.project.ProjectConfig;
-import io.github.alessandroscarlatti.windows.ContextMenuItem;
-import io.github.alessandroscarlatti.windows.Icon;
+import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
+import io.github.alessandroscarlatti.windows.menu.Icon;
 import io.github.alessandroscarlatti.project.ProjectParser;
 
 import java.nio.file.Path;
@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import static io.github.alessandroscarlatti.menu.MenuConfig.PROP_REG_UID;
+import static io.github.alessandroscarlatti.menu.MenuConfig.PROP_TARGET_DESKTOP_ENABLED;
+import static io.github.alessandroscarlatti.menu.MenuConfig.PROP_TARGET_DIRECTORY_ENABLED;
 import static io.github.alessandroscarlatti.project.ProjectParser.overlayProperties;
 
 /**
@@ -70,17 +73,19 @@ public class MenuParser {
             userMenuProperties()     // overlay any user-provided properties
         });
 
-        MenuConfig menuConfig = MenuConfig.fromProperties(commandProperties);
-
-        // every menu should inherit the parent's reg prefix
-        if (parentMenuConfig != null)
-            menuConfig.setRegUid(parentMenuConfig.getRegUid());
-
-        return menuConfig;
+        return MenuConfig.fromProperties(commandProperties);
     }
 
     private Properties defaultMenuProperties() {
-        return new Properties();
+        Properties props = new Properties();
+        props.setProperty(PROP_TARGET_DESKTOP_ENABLED, "true");
+        props.setProperty(PROP_TARGET_DIRECTORY_ENABLED, "true");
+
+        // choose the default reg prefix
+        // or inherit the parent's reg prefix
+        props.setProperty(PROP_REG_UID, parentMenuConfig == null ? buildDefaultRegUid() : parentMenuConfig.getRegUid());
+
+        return props;
     }
 
     private Properties userMenuProperties() {
@@ -115,5 +120,9 @@ public class MenuParser {
         // create a reg name of the form {menu.reg.id}.{condensed menu text name + unique id}
         String regMenuName = parseMenuText().replaceAll("\\s", "");
         return menuConfig.getRegUid() + "." + regMenuName;
+    }
+
+    private String buildDefaultRegUid() {
+        return parseMenuText().replaceAll("\\s", "");
     }
 }

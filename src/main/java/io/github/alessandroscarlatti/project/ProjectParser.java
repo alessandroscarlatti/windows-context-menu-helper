@@ -4,7 +4,7 @@ import io.github.alessandroscarlatti.command.Command;
 import io.github.alessandroscarlatti.command.CommandParser;
 import io.github.alessandroscarlatti.menu.Menu;
 import io.github.alessandroscarlatti.menu.MenuParser;
-import io.github.alessandroscarlatti.windows.ContextMenuItem;
+import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -176,5 +176,15 @@ public class ProjectParser {
         }
 
         return targetProps;
+    }
+
+    public static boolean parseBoolean(String val) {
+        if (val == null)
+            return false;
+
+        if (val.trim().replaceAll("\\s", "s").isEmpty())
+            return false;
+
+        return Boolean.parseBoolean(val);
     }
 }

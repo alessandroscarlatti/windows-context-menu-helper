@@ -2,11 +2,12 @@ package io.github.alessandroscarlatti.command;
 
 import io.github.alessandroscarlatti.menu.MenuConfig;
 import io.github.alessandroscarlatti.project.ProjectParser;
-import io.github.alessandroscarlatti.windows.Icon;
+import io.github.alessandroscarlatti.windows.menu.Icon;
 
 import java.nio.file.Path;
 import java.util.Properties;
 
+import static io.github.alessandroscarlatti.command.CommandConfig.PROP_REG_UID;
 import static io.github.alessandroscarlatti.project.ProjectParser.overlayProperties;
 
 /**
@@ -53,7 +54,9 @@ public class CommandParser {
     }
 
     private Properties defaultCommandProperties() {
-        return new Properties();
+        Properties props = new Properties();
+        props.setProperty(PROP_REG_UID, parentMenuConfig == null ? buildDefaultRegUid() : parentMenuConfig.getRegUid());
+        return props;
     }
 
     private Properties userCommandProperties() {
@@ -92,5 +95,9 @@ public class CommandParser {
         // create a reg name of the form {menu.reg.id}.{condensed menu text name + unique id}
         String regCommandName = parseCommandText().replaceAll("\\s", "");
         return commandConfig.getRegUid() + "." + regCommandName;
+    }
+
+    private String buildDefaultRegUid() {
+        return parseCommandText().replaceAll("\\s", "");
     }
 }
