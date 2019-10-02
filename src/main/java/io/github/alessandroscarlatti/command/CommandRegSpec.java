@@ -8,13 +8,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import static io.github.alessandroscarlatti.windows.reg.RegType.REG_SZ;
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 /**
  * @author Alessandro Scarlatti
  * @since Tuesday, 10/1/2019
  */
-public class CommandRegSpec implements RegSpec {
+public class CommandRegSpec extends RegSpec {
 
     // The command we are building reg keys for
     private Command rootCommand;
@@ -34,11 +34,15 @@ public class CommandRegSpec implements RegSpec {
 
         RegKey commandRegKey = hkeyClassesRootDirectoryBackgroundShell.addChildRegKey("command");
         commandRegKey.addRegValue(new RegValue(null, REG_SZ, rootCommand.getBat().toAbsolutePath().toString()));
+
+        // now build the install .reg file
+        String regInstall = RegKey.exportKeys(singletonList(hkeyClassesRootDirectoryBackgroundShell));
+        setRegInstall(regInstall);
     }
 
     @Override
     public void exportSpec(OutputStream os) throws IOException {
-        os.write(RegKey.exportKeys(asList(hkeyClassesRootDirectoryBackgroundShell)).getBytes());
+        os.write(getRegInstall().getBytes());
     }
 
     public RegKey getHkeyClassesRootDirectoryBackgroundShell() {

@@ -25,7 +25,7 @@ public class Menu implements ContextMenuItem {
     private RegSpec regSpec;
 
     public Menu() {
-        regSpec = new MenuRegSpec(this);
+        regSpec = new AbstractMenuRegSpec(this);
     }
 
     public static void connectParentToChild(Menu parent, ContextMenuItem child) {

@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toList;
  * @author Alessandro Scarlatti
  * @since Tuesday, 10/1/2019
  */
-public class MenuRegSpec implements RegSpec {
+public class AbstractMenuRegSpec extends RegSpec {
 
     // The menu we are building reg keys for
     private Menu rootMenu;
@@ -30,7 +30,7 @@ public class MenuRegSpec implements RegSpec {
     // This represents all child commands
     private List<RegKey> hkeyLocalMachineExplorerCommandStoreShells = new ArrayList<>();
 
-    public MenuRegSpec(Menu rootMenu) {
+    public AbstractMenuRegSpec(Menu rootMenu) {
         this.rootMenu = rootMenu;
     }
 
@@ -46,14 +46,18 @@ public class MenuRegSpec implements RegSpec {
         // build any subcommands
         RegValue subCommandsRegValue = buildSubCommandsRegValue(rootMenu);
         regKey.addRegValue(subCommandsRegValue);
+
+        // now build the install .reg file
+        List<RegKey> regKeys = new ArrayList<>();
+        regKeys.add(hkeyClassesRootDirectoryBackgroundShell);
+        regKeys.addAll(hkeyLocalMachineExplorerCommandStoreShells);
+        String regInstall = RegKey.exportKeys(regKeys);
+        setRegInstall(regInstall);
     }
 
     @Override
     public void exportSpec(OutputStream os) throws IOException {
-        List<RegKey> regKeys = new ArrayList<>();
-        regKeys.add(hkeyClassesRootDirectoryBackgroundShell);
-        regKeys.addAll(hkeyLocalMachineExplorerCommandStoreShells);
-        os.write(RegKey.exportKeys(regKeys).getBytes());
+        os.write(getRegInstall().getBytes());
     }
 
     private void buildRegKeysNotRootMenu(Menu menu, List<RegKey> parentSubCommands) {
