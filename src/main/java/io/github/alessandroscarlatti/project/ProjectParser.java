@@ -40,7 +40,7 @@ public class ProjectParser {
 
         // now parse these into context menu items
         for (Path menuDir : menuDirs) {
-            Menu menu = new MenuParser(menuDir, projectConfig, null).parseMenu();
+            Menu menu = new MenuParser(menuDir, projectConfig, null, null).parseMenu();
             contextMenuItems.add(menu);
         }
 

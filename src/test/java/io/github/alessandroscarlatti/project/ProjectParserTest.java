@@ -17,4 +17,14 @@ public class ProjectParserTest {
 
         System.out.println("done");
     }
+
+    @Test
+    public void testMenuRegSpec() {
+        ProjectParser projectParser = new ProjectParser(Paths.get("TestProjects/TestProject1"));
+        Project project = projectParser.parseProject();
+        project.buildRegSpecs();
+        project.exportRegSpecs();
+
+        System.out.println("done");
+    }
 }

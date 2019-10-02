@@ -9,6 +9,15 @@ public class RegValue {
     private RegType regType;  // the Type column in regedit
     private String data;  // the Data column in regedit
 
+    public RegValue() {
+    }
+
+    public RegValue(String name, RegType regType, String data) {
+        this.name = name;
+        this.regType = regType;
+        this.data = data;
+    }
+
     @Override
     public String toString() {
         return "RegValue{" +

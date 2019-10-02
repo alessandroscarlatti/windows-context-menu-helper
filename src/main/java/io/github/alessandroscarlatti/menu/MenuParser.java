@@ -27,8 +27,9 @@ public class MenuParser {
     private MenuConfig menuConfig;  // the config read from menu.properties
     private ProjectConfig projectConfig;  // the config for the project containing this menu
     private MenuConfig parentMenuConfig;  // the config for the parent menu, may be null if no parent config
+    private Menu parentMenu;  // the parent menu, may be null if this is the root menu
 
-    public MenuParser(Path menuDir, ProjectConfig projectConfig, MenuConfig parentMenuConfig) {
+    public MenuParser(Path menuDir, ProjectConfig projectConfig, MenuConfig parentMenuConfig, Menu parentMenu) {
         this.menuDir = menuDir;
         this.projectConfig = projectConfig;
         this.parentMenuConfig = parentMenuConfig;
@@ -36,7 +37,12 @@ public class MenuParser {
 
     public Menu parseMenu() {
         // parse a menu object from this dir
+        Menu menu = new Menu();
         menuConfig = parseMenuConfig();
+
+        menu.setText(parseMenuText());
+        menu.setIcon(parseMenuIcon());
+        menu.setRegName(parseRegName());
 
         // find the dirs in the menu dir that contain menus or commands
         List<Path> menuDirs = ProjectParser.findMenuDirs(menuDir);
@@ -46,24 +52,20 @@ public class MenuParser {
 
         // now parse these into context menu items
         for (Path menuDir : menuDirs) {
-            Menu menu = new MenuParser(menuDir, projectConfig, menuConfig).parseMenu();
-            contextMenuItems.add(menu);
+            Menu subMenu = new MenuParser(menuDir, projectConfig, menuConfig, menu).parseMenu();
+            Menu.connectParentToChild(menu, subMenu);
+            contextMenuItems.add(subMenu);
         }
 
         for (Path commandDir : commandDirs) {
             Command command = new CommandParser(commandDir, menuConfig).parseCommand();
+            Menu.connectParentToChild(menu, command);
             contextMenuItems.add(command);
         }
 
         // sort the items, since they are still unordered
         ProjectParser.sortContextMenuItems(contextMenuItems);
 
-        // create the menu
-        Menu menu = new Menu();
-        menu.setChildren(contextMenuItems);
-        menu.setText(parseMenuText());
-        menu.setIcon(parseMenuIcon());
-        menu.setRegName(parseRegName());
         return menu;
     }
 
