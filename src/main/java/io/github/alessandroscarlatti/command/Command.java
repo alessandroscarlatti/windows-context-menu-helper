@@ -3,8 +3,7 @@ package io.github.alessandroscarlatti.command;
 import io.github.alessandroscarlatti.menu.Menu;
 import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.windows.menu.Icon;
-import io.github.alessandroscarlatti.windows.reg.RegKey;
-import io.github.alessandroscarlatti.windows.reg.RegSpec;
+import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
 
 import java.nio.file.Path;
 
@@ -22,7 +21,7 @@ public class Command implements ContextMenuItem {
 
     // the reg spec to use for this command
     // only a root level command has a reg spec.
-    private RegSpec regSpec;
+    private AbstractRegSpec regSpec;
 
     public Command() {
         regSpec = new CommandRegSpec(this);
@@ -76,11 +75,11 @@ public class Command implements ContextMenuItem {
         this.parent = parent;
     }
 
-    public RegSpec getRegSpec() {
+    public AbstractRegSpec getRegSpec() {
         return regSpec;
     }
 
-    public void setRegSpec(RegSpec regSpec) {
+    public void setRegSpec(AbstractRegSpec regSpec) {
         this.regSpec = regSpec;
     }
 }

@@ -1,6 +1,6 @@
 package io.github.alessandroscarlatti.windows.menu;
 
-import io.github.alessandroscarlatti.windows.reg.RegSpec;
+import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
 
 /**
  * @author Alessandro Scarlatti
@@ -8,5 +8,5 @@ import io.github.alessandroscarlatti.windows.reg.RegSpec;
  */
 public interface ContextMenuItem {
 
-    RegSpec getRegSpec();
+    AbstractRegSpec getRegSpec();
 }

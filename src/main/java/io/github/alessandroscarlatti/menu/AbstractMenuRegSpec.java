@@ -3,13 +3,12 @@ package io.github.alessandroscarlatti.menu;
 import io.github.alessandroscarlatti.command.Command;
 import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.windows.reg.RegKey;
-import io.github.alessandroscarlatti.windows.reg.RegSpec;
+import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
 import io.github.alessandroscarlatti.windows.reg.RegValue;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static io.github.alessandroscarlatti.windows.reg.RegType.REG_SZ;
@@ -19,7 +18,7 @@ import static java.util.stream.Collectors.toList;
  * @author Alessandro Scarlatti
  * @since Tuesday, 10/1/2019
  */
-public class AbstractMenuRegSpec extends RegSpec {
+public class AbstractMenuRegSpec extends AbstractRegSpec {
 
     // The menu we are building reg keys for
     private Menu rootMenu;

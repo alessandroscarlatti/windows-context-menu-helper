@@ -1,7 +1,7 @@
 package io.github.alessandroscarlatti.command;
 
 import io.github.alessandroscarlatti.windows.reg.RegKey;
-import io.github.alessandroscarlatti.windows.reg.RegSpec;
+import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
 import io.github.alessandroscarlatti.windows.reg.RegValue;
 
 import java.io.IOException;
@@ -14,7 +14,7 @@ import static java.util.Collections.singletonList;
  * @author Alessandro Scarlatti
  * @since Tuesday, 10/1/2019
  */
-public class CommandRegSpec extends RegSpec {
+public class CommandRegSpec extends AbstractRegSpec {
 
     // The command we are building reg keys for
     private Command rootCommand;

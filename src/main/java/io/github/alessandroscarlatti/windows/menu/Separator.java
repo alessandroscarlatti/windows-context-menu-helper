@@ -1,6 +1,6 @@
 package io.github.alessandroscarlatti.windows.menu;
 
-import io.github.alessandroscarlatti.windows.reg.RegSpec;
+import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
 
 /**
  * @author Alessandro Scarlatti
@@ -9,7 +9,7 @@ import io.github.alessandroscarlatti.windows.reg.RegSpec;
 public class Separator implements ContextMenuItem {
 
     @Override
-    public RegSpec getRegSpec() {
+    public AbstractRegSpec getRegSpec() {
         // there is no reg spec right now for a separator
         // since we won't allow it to be a root level context menu item
         return null;

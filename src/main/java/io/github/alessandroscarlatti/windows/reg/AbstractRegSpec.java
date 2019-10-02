@@ -7,7 +7,7 @@ import java.io.OutputStream;
  * @author Alessandro Scarlatti
  * @since Tuesday, 10/1/2019
  */
-public abstract class RegSpec {
+public abstract class AbstractRegSpec {
 
     private String regInstall;
     private String regUninstall;

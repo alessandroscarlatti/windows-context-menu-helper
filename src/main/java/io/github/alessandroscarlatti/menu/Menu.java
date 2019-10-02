@@ -3,7 +3,7 @@ package io.github.alessandroscarlatti.menu;
 import io.github.alessandroscarlatti.command.Command;
 import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.windows.menu.Icon;
-import io.github.alessandroscarlatti.windows.reg.RegSpec;
+import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class Menu implements ContextMenuItem {
 
     // the reg spec to use for this context menu
     // only a root level menu has a reg spec.
-    private RegSpec regSpec;
+    private AbstractRegSpec regSpec;
 
     public Menu() {
         regSpec = new AbstractMenuRegSpec(this);
@@ -91,11 +91,11 @@ public class Menu implements ContextMenuItem {
         this.parent = parent;
     }
 
-    public RegSpec getRegSpec() {
+    public AbstractRegSpec getRegSpec() {
         return regSpec;
     }
 
-    public void setRegSpec(RegSpec regSpec) {
+    public void setRegSpec(AbstractRegSpec regSpec) {
         this.regSpec = regSpec;
     }
 }
