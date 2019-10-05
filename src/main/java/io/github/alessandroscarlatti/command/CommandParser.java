@@ -49,10 +49,6 @@ public class CommandParser {
 
         CommandConfig commandConfig = CommandConfig.fromProperties(commandProperties);
 
-        // every command should inherit the parent's reg prefix
-        if (parentMenu != null)
-            commandConfig.setRegUid(parentMenu.getMenuConfig().getRegUid());
-
         return commandConfig;
     }
 
