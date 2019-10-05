@@ -13,5 +13,5 @@ powershell "Start-Process cmd -ArgumentList @('/c', 'cd', '%~dp0', '&&', 'cmd', 
 exit /b %ERRORLEVEL%
 
 :SYNC
-java -jar WindowsContextMenuHelper.jar
+java -jar ContextMenuHelper.jar sync
 exit /b %ERRORLEVEL%

@@ -129,6 +129,12 @@ public class RegExportUtil {
         // for example: [HKEY_CLASSES_ROOT\Directory\Background\shell\TestMenu2Override.TestMenu2]
         // becomes: [-HKEY_CLASSES_ROOT\Directory\Background\shell\TestMenu2Override.TestMenu2]
         // In .reg scripts, these are the only brackets at the beginning of the line.
+
+        // todo this is going to need to be much smarter, because it needs to be able to delete orphaned keys.
+        // Orphaned keys would be left over from a previous build.
+        // So we will need to query the registry in all the known places for any keys that have the
+        // desired prefix in the right locations.
+
         return RegKey.exportKeys(regKeys).replaceAll("(?m)^\\[", "[-");
     }
 }
