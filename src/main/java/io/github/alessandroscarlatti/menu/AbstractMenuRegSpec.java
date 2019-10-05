@@ -55,8 +55,13 @@ public class AbstractMenuRegSpec extends AbstractRegSpec {
     }
 
     @Override
-    public void exportSpec(OutputStream os) throws IOException {
+    public void writeInstallRegScript(OutputStream os) throws IOException {
         os.write(getRegInstall().getBytes());
+    }
+
+    @Override
+    public void writeRestorePointRegScript(OutputStream os) throws IOException {
+
     }
 
     private void buildRegKeysNotRootMenu(Menu menu, List<RegKey> parentSubCommands) {

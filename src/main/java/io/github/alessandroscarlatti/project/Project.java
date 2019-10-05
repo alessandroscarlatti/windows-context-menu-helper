@@ -27,7 +27,7 @@ public class Project {
         for (ContextMenuItem contextMenuItem : contextMenuItems) {
             if (contextMenuItem.getRegSpec() != null) {
                 try {
-                    contextMenuItem.getRegSpec().exportSpec(System.out);
+                    contextMenuItem.getRegSpec().writeInstallRegScript(System.out);
                 } catch (java.io.IOException e) {
                     e.printStackTrace();
                 }

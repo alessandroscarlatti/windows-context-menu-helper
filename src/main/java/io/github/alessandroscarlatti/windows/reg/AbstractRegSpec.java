@@ -15,7 +15,9 @@ public abstract class AbstractRegSpec {
 
     public abstract void buildSpec();
 
-    public abstract void exportSpec(OutputStream os) throws IOException;
+    public abstract void writeInstallRegScript(OutputStream os) throws IOException;
+
+    public abstract void writeRestorePointRegScript(OutputStream os) throws IOException;
 
     public String getRegInstall() {
         return regInstall;
