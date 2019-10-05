@@ -7,9 +7,14 @@ import org.apache.commons.exec.ExecuteWatchdog;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static io.github.alessandroscarlatti.project.Project.fileTimestamp;
+import static java.util.Collections.singletonList;
 
 /**
  * @author Alessandro Scarlatti
@@ -19,9 +24,22 @@ public class RegExportUtil {
 
     private Path workingDir; // the temp dir where the restore point files are written during compilation
     private int timeoutMs = 60000;  // how long to wait max for the reg task to complete
+    private boolean deleteWorkingFiles = true;  // whether or not to delete the raw reg export files
+    private String regExportEncoding = "utf-16";  // the encoding to use when reading the raw reg export file
 
     public RegExportUtil(Path workingDir) {
         this.workingDir = workingDir;
+    }
+
+    public RegExportUtil(Path workingDir, int timeoutMs, boolean deleteWorkingFiles, String regExportEncoding) {
+        this.workingDir = workingDir;
+        this.timeoutMs = timeoutMs;
+        this.deleteWorkingFiles = deleteWorkingFiles;
+        this.regExportEncoding = regExportEncoding;
+    }
+
+    public String exportToString(RegKey regKey) {
+        return exportToString(singletonList(regKey));
     }
 
     public String exportToString(List<RegKey> regKeys) {
@@ -31,27 +49,50 @@ public class RegExportUtil {
         // incrementally build script, one key at a time
         StringBuilder sb = new StringBuilder();
         for (RegKey regKey : regKeys) {
-            String script = exportToString(regKey);
-            sb.append(script);
-            sb.append("\n");
+            if (regKeyExists(regKey)) {
+                String script = exportToStringInternal(regKey);
+                sb.append(script);
+                sb.append("\n");
+            }
         }
         return sb.toString();
     }
 
-    private String exportToString(RegKey regKey) {
+    private boolean regKeyExists(RegKey regKey) {
         try {
-            System.out.println("Exporting reg key " + regKey);
+            System.out.println("Querying if reg key " + regKey + " exists");
+
+            CommandLine cmdLine = new CommandLine("reg");
+            cmdLine.addArgument("query");
+            cmdLine.addArgument(regKey.getLongKeyName());
+            DefaultExecutor executor = new DefaultExecutor();
+            executor.setExitValues(new int[]{0, 1});
+            ExecuteWatchdog watchdog = new ExecuteWatchdog(timeoutMs);
+            executor.setWatchdog(watchdog);
+            int exitCode = executor.execute(cmdLine);
+
+            return exitCode == 0;
+        } catch (IOException e) {
+            throw new RuntimeException("Error determining if reg key " + regKey + " exists", e);
+        }
+    }
+
+    private String exportToStringInternal(RegKey regKey) {
+        try {
             // build params
             // use the reg key name, sanitized
             Map<String, Object> map = new HashMap<>();
             String fileName = regKey.getLongKeyName().replace("\\", "-");
-            Path file = workingDir.resolve(fileName);
+            Path file = workingDir.resolve(fileName + "-" + fileTimestamp() + ".reg").toAbsolutePath();
             map.put("file", file);
+
+            System.out.println("Exporting reg key " + regKey + " to " + file);
 
             CommandLine cmdLine = new CommandLine("reg");
             cmdLine.addArgument("export");
             cmdLine.addArgument(regKey.getLongKeyName());
             cmdLine.addArgument("${file}");
+            cmdLine.addArgument("/y");  // don't ask if we want to overwrite the file
             cmdLine.setSubstitutionMap(map);
             DefaultExecutor executor = new DefaultExecutor();
             executor.setExitValue(0);
@@ -60,14 +101,34 @@ public class RegExportUtil {
             executor.execute(cmdLine);
 
             // read the reg script from the export file
-            String script = new String(Files.readAllBytes(file));
+            String script = new String(Files.readAllBytes(file), regExportEncoding);
 
-            // delete the file
-            Files.delete(file);
+            // optionally delete the file
+            if (deleteWorkingFiles)
+                Files.delete(file);
 
             return script;
         } catch (IOException e) {
             throw new RuntimeException("Error exporting reg key " + regKey, e);
         }
+    }
+
+    public String installToString(RegKey regKey) {
+        return installToString(singletonList(regKey));
+    }
+
+    public String installToString(List<RegKey> regKeys) {
+        return RegKey.exportKeys(regKeys);
+    }
+
+    public String uninstallToString(RegKey regKey) {
+        return uninstallToString(singletonList(regKey));
+    }
+
+    public String uninstallToString(List<RegKey> regKeys) {
+        // for example: [HKEY_CLASSES_ROOT\Directory\Background\shell\TestMenu2Override.TestMenu2]
+        // becomes: [-HKEY_CLASSES_ROOT\Directory\Background\shell\TestMenu2Override.TestMenu2]
+        // In .reg scripts, these are the only brackets at the beginning of the line.
+        return RegKey.exportKeys(regKeys).replaceAll("(?m)^\\[", "[-");
     }
 }

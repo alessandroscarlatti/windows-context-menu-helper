@@ -1,13 +1,13 @@
 package io.github.alessandroscarlatti.menu;
 
 import io.github.alessandroscarlatti.command.Command;
+import io.github.alessandroscarlatti.project.ProjectContext;
 import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.windows.reg.RegKey;
 import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
 import io.github.alessandroscarlatti.windows.reg.RegValue;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toList;
  * @author Alessandro Scarlatti
  * @since Tuesday, 10/1/2019
  */
-public class AbstractMenuRegSpec extends AbstractRegSpec {
+public class MenuRegSpec extends AbstractRegSpec {
 
     // The menu we are building reg keys for
     private Menu rootMenu;
@@ -29,8 +29,12 @@ public class AbstractMenuRegSpec extends AbstractRegSpec {
     // This represents all child commands
     private List<RegKey> hkeyLocalMachineExplorerCommandStoreShells = new ArrayList<>();
 
-    public AbstractMenuRegSpec(Menu rootMenu) {
+    // the context for the project
+    private ProjectContext projectContext;
+
+    public MenuRegSpec(Menu rootMenu, ProjectContext projectContext) {
         this.rootMenu = rootMenu;
+        this.projectContext = projectContext;
     }
 
     @Override
@@ -47,21 +51,34 @@ public class AbstractMenuRegSpec extends AbstractRegSpec {
         regKey.addRegValue(subCommandsRegValue);
 
         // now build the install .reg file
+        String regInstall = projectContext.getRegExportUtil().installToString(getAllSpecRegKeys());
+        setRegInstall(regInstall);
+
+        // now build the uninstall .reg file
+        String regUninstall = projectContext.getRegExportUtil().uninstallToString(getAllSpecRegKeys());
+        setRegUninstall(regUninstall);
+    }
+
+    @Override
+    public String writeInstallRegScript() {
+        return getRegInstall();
+    }
+
+    @Override
+    public String writeUninstallRegScript() {
+        return getRegUninstall();
+    }
+
+    @Override
+    public String writeRestorePointRegScript() {
+        return projectContext.getRegExportUtil().exportToString(getAllSpecRegKeys());
+    }
+
+    private List<RegKey> getAllSpecRegKeys() {
         List<RegKey> regKeys = new ArrayList<>();
         regKeys.add(hkeyClassesRootDirectoryBackgroundShell);
         regKeys.addAll(hkeyLocalMachineExplorerCommandStoreShells);
-        String regInstall = RegKey.exportKeys(regKeys);
-        setRegInstall(regInstall);
-    }
-
-    @Override
-    public void writeInstallRegScript(OutputStream os) throws IOException {
-        os.write(getRegInstall().getBytes());
-    }
-
-    @Override
-    public void writeRestorePointRegScript(OutputStream os) throws IOException {
-
+        return regKeys;
     }
 
     private void buildRegKeysNotRootMenu(Menu menu, List<RegKey> parentSubCommands) {

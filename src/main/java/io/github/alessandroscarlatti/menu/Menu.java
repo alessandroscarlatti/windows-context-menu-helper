@@ -1,6 +1,7 @@
 package io.github.alessandroscarlatti.menu;
 
 import io.github.alessandroscarlatti.command.Command;
+import io.github.alessandroscarlatti.project.ProjectContext;
 import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.windows.menu.Icon;
 import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
@@ -19,13 +20,17 @@ public class Menu implements ContextMenuItem {
     private Icon icon;  // the icon displayed for this menu
     private String text;  // the text displayed for this menu
     private String regName;  // the name of the Registry key for this menu, eg, SomeTool.SomeMenu
+    private ProjectContext projectContext;
+    private MenuConfig menuConfig;
 
-    // the reg spec to use for this context menu
+    // the reg spec to use for this context menu.
     // only a root level menu has a reg spec.
     private AbstractRegSpec regSpec;
 
-    public Menu() {
-        regSpec = new AbstractMenuRegSpec(this);
+    public Menu(MenuConfig menuConfig, ProjectContext projectContext) {
+        this.menuConfig = menuConfig;
+        this.projectContext = projectContext;
+        regSpec = new MenuRegSpec(this, projectContext);
     }
 
     public static void connectParentToChild(Menu parent, ContextMenuItem child) {
@@ -41,6 +46,11 @@ public class Menu implements ContextMenuItem {
             ((Command) child).setRegSpec(null);  // no reg spec for a child command
             ((Command) child).setRegSpec(null);  // no reg spec for a child command
         }
+    }
+
+    @Override
+    public String getName() {
+        return regName;
     }
 
     @Override
@@ -97,5 +107,13 @@ public class Menu implements ContextMenuItem {
 
     public void setRegSpec(AbstractRegSpec regSpec) {
         this.regSpec = regSpec;
+    }
+
+    public MenuConfig getMenuConfig() {
+        return menuConfig;
+    }
+
+    public void setMenuConfig(MenuConfig menuConfig) {
+        this.menuConfig = menuConfig;
     }
 }

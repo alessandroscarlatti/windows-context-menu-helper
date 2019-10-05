@@ -2,7 +2,7 @@ package io.github.alessandroscarlatti.menu;
 
 import io.github.alessandroscarlatti.command.Command;
 import io.github.alessandroscarlatti.command.CommandParser;
-import io.github.alessandroscarlatti.project.ProjectConfig;
+import io.github.alessandroscarlatti.project.ProjectContext;
 import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.windows.menu.Icon;
 import io.github.alessandroscarlatti.project.ProjectParser;
@@ -25,21 +25,21 @@ public class MenuParser {
 
     private Path menuDir;  // the dir containing this menu
     private MenuConfig menuConfig;  // the config read from menu.properties
-    private ProjectConfig projectConfig;  // the config for the project containing this menu
-    private MenuConfig parentMenuConfig;  // the config for the parent menu, may be null if no parent config
     private Menu parentMenu;  // the parent menu, may be null if this is the root menu
+    private ProjectContext projectContext;
 
-    public MenuParser(Path menuDir, ProjectConfig projectConfig, MenuConfig parentMenuConfig, Menu parentMenu) {
+    public MenuParser(Path menuDir, ProjectContext projectContext, Menu parentMenu) {
         this.menuDir = menuDir;
-        this.projectConfig = projectConfig;
-        this.parentMenuConfig = parentMenuConfig;
+        this.projectContext = projectContext;
+        this.parentMenu = parentMenu;
     }
 
     public Menu parseMenu() {
         // parse a menu object from this dir
-        Menu menu = new Menu();
         menuConfig = parseMenuConfig();
 
+        // build a menu
+        Menu menu = new Menu(menuConfig, projectContext);
         menu.setText(parseMenuText());
         menu.setIcon(parseMenuIcon());
         menu.setRegName(parseRegName());
@@ -52,13 +52,13 @@ public class MenuParser {
 
         // now parse these into context menu items
         for (Path menuDir : menuDirs) {
-            Menu subMenu = new MenuParser(menuDir, projectConfig, menuConfig, menu).parseMenu();
+            Menu subMenu = new MenuParser(menuDir, projectContext, menu).parseMenu();
             Menu.connectParentToChild(menu, subMenu);
             contextMenuItems.add(subMenu);
         }
 
         for (Path commandDir : commandDirs) {
-            Command command = new CommandParser(commandDir, menuConfig).parseCommand();
+            Command command = new CommandParser(commandDir, projectContext, menu).parseCommand();
             Menu.connectParentToChild(menu, command);
             contextMenuItems.add(command);
         }
@@ -85,7 +85,7 @@ public class MenuParser {
 
         // choose the default reg prefix
         // or inherit the parent's reg prefix
-        props.setProperty(PROP_REG_UID, parentMenuConfig == null ? buildDefaultRegUid() : parentMenuConfig.getRegUid());
+        props.setProperty(PROP_REG_UID, parentMenu == null ? buildDefaultRegUid() : parentMenu.getMenuConfig().getRegUid());
 
         return props;
     }

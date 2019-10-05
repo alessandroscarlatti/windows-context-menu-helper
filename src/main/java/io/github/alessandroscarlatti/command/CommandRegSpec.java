@@ -1,11 +1,11 @@
 package io.github.alessandroscarlatti.command;
 
+import io.github.alessandroscarlatti.project.ProjectContext;
 import io.github.alessandroscarlatti.windows.reg.RegKey;
 import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
 import io.github.alessandroscarlatti.windows.reg.RegValue;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import static io.github.alessandroscarlatti.windows.reg.RegType.REG_SZ;
 import static java.util.Collections.singletonList;
@@ -22,8 +22,11 @@ public class CommandRegSpec extends AbstractRegSpec {
     // This reg key will only exist if this command is directly in the system context menu.
     private RegKey hkeyClassesRootDirectoryBackgroundShell;
 
-    public CommandRegSpec(Command rootCommand) {
+    private ProjectContext projectContext;
+
+    public CommandRegSpec(Command rootCommand, ProjectContext projectContext) {
         this.rootCommand = rootCommand;
+        this.projectContext = projectContext;
     }
 
     @Override
@@ -36,18 +39,27 @@ public class CommandRegSpec extends AbstractRegSpec {
         commandRegKey.addRegValue(new RegValue(null, REG_SZ, rootCommand.getBat().toAbsolutePath().toString()));
 
         // now build the install .reg file
-        String regInstall = RegKey.exportKeys(singletonList(hkeyClassesRootDirectoryBackgroundShell));
+        String regInstall = projectContext.getRegExportUtil().installToString(hkeyClassesRootDirectoryBackgroundShell);
         setRegInstall(regInstall);
+
+        // now build the uninstall .reg file
+        String regUninstall = projectContext.getRegExportUtil().uninstallToString(hkeyClassesRootDirectoryBackgroundShell);
+        setRegUninstall(regUninstall);
     }
 
     @Override
-    public void writeInstallRegScript(OutputStream os) throws IOException {
-        os.write(getRegInstall().getBytes());
+    public String writeInstallRegScript() {
+        return getRegInstall();
     }
 
     @Override
-    public void writeRestorePointRegScript(OutputStream os) throws IOException {
+    public String writeUninstallRegScript() {
+        return getRegUninstall();
+    }
 
+    @Override
+    public String writeRestorePointRegScript() {
+        return projectContext.getRegExportUtil().exportToString(hkeyClassesRootDirectoryBackgroundShell);
     }
 
     public RegKey getHkeyClassesRootDirectoryBackgroundShell() {

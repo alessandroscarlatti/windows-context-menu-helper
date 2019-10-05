@@ -1,7 +1,6 @@
 package io.github.alessandroscarlatti.windows.reg;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * @author Alessandro Scarlatti
@@ -15,9 +14,11 @@ public abstract class AbstractRegSpec {
 
     public abstract void buildSpec();
 
-    public abstract void writeInstallRegScript(OutputStream os) throws IOException;
+    public abstract String writeInstallRegScript() throws IOException;
 
-    public abstract void writeRestorePointRegScript(OutputStream os) throws IOException;
+    public abstract String writeUninstallRegScript() throws IOException;
+
+    public abstract String writeRestorePointRegScript() throws IOException;
 
     public String getRegInstall() {
         return regInstall;

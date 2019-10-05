@@ -1,6 +1,7 @@
 package io.github.alessandroscarlatti.command;
 
-import io.github.alessandroscarlatti.menu.MenuConfig;
+import io.github.alessandroscarlatti.menu.Menu;
+import io.github.alessandroscarlatti.project.ProjectContext;
 import io.github.alessandroscarlatti.project.ProjectParser;
 import io.github.alessandroscarlatti.windows.menu.Icon;
 
@@ -18,18 +19,20 @@ public class CommandParser {
 
     private Path commandDir;  // the dir containing this command
     private CommandConfig commandConfig;  // the config from command.properties
-    private MenuConfig parentMenuConfig; // the config for the parent menu, may be null if no parent
+    private Menu parentMenu; // the parent menu, may be null if no parent
+    private ProjectContext projectContext;
 
-    public CommandParser(Path commandDir, MenuConfig parentMenuConfig) {
+    public CommandParser(Path commandDir, ProjectContext projectContext, Menu parentMenu) {
         this.commandDir = commandDir;
-        this.parentMenuConfig = parentMenuConfig;
+        this.projectContext = projectContext;
+        this.parentMenu = parentMenu;
     }
 
     public Command parseCommand() {
 
         commandConfig = parseCommandConfig();
 
-        Command command = new Command();
+        Command command = new Command(projectContext);
         command.setBat(parseCommandBat());
         command.setIcon(parseCommandIcon());
         command.setText(parseCommandText());
@@ -47,15 +50,15 @@ public class CommandParser {
         CommandConfig commandConfig = CommandConfig.fromProperties(commandProperties);
 
         // every command should inherit the parent's reg prefix
-        if (parentMenuConfig != null)
-            commandConfig.setRegUid(parentMenuConfig.getRegUid());
+        if (parentMenu != null)
+            commandConfig.setRegUid(parentMenu.getMenuConfig().getRegUid());
 
         return commandConfig;
     }
 
     private Properties defaultCommandProperties() {
         Properties props = new Properties();
-        props.setProperty(PROP_REG_UID, parentMenuConfig == null ? buildDefaultRegUid() : parentMenuConfig.getRegUid());
+        props.setProperty(PROP_REG_UID, parentMenu == null ? buildDefaultRegUid() : parentMenu.getMenuConfig().getRegUid());
         return props;
     }
 

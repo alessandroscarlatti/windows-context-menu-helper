@@ -14,4 +14,9 @@ public class Separator implements ContextMenuItem {
         // since we won't allow it to be a root level context menu item
         return null;
     }
+
+    @Override
+    public String getName() {
+        return null;
+    }
 }

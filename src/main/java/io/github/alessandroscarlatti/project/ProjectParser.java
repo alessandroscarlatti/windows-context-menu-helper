@@ -23,10 +23,12 @@ import static java.util.stream.Collectors.toList;
 public class ProjectParser {
 
     private Path projectDir;  // the directory containing this project
+    private ProjectContext projectContext;
     private ProjectConfig projectConfig;  // the config read from project.properties
 
-    public ProjectParser(Path projectDir) {
-        this.projectDir = projectDir;
+    public ProjectParser(ProjectContext projectContext) {
+        this.projectContext = projectContext;
+        this.projectDir = projectContext.getProjectDir();
     }
 
     // build a list of context menu items found within the project dir.
@@ -40,12 +42,12 @@ public class ProjectParser {
 
         // now parse these into context menu items
         for (Path menuDir : menuDirs) {
-            Menu menu = new MenuParser(menuDir, projectConfig, null, null).parseMenu();
+            Menu menu = new MenuParser(menuDir, projectContext, null).parseMenu();
             contextMenuItems.add(menu);
         }
 
         for (Path commandDir : commandDirs) {
-            Command command = new CommandParser(commandDir, null).parseCommand();
+            Command command = new CommandParser(commandDir, projectContext, null).parseCommand();
             contextMenuItems.add(command);
         }
 
@@ -53,9 +55,7 @@ public class ProjectParser {
         sortContextMenuItems(contextMenuItems);
 
         // create the project
-        Project project = new Project();
-        project.setContextMenuItems(contextMenuItems);
-        return project;
+        return new Project(projectContext, contextMenuItems);
     }
 
     public static void sortContextMenuItems(List<ContextMenuItem> items) {

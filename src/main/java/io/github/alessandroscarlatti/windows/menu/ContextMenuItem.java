@@ -8,5 +8,9 @@ import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
  */
 public interface ContextMenuItem {
 
+    // get reg spec to use for this item
     AbstractRegSpec getRegSpec();
+
+    // get name to use, eg, a dir "Command_Some Command" => "Command_Some Command"
+    String getName();
 }

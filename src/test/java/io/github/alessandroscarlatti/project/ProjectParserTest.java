@@ -1,5 +1,6 @@
 package io.github.alessandroscarlatti.project;
 
+import io.github.alessandroscarlatti.windows.reg.RegExportUtil;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -12,7 +13,11 @@ public class ProjectParserTest {
 
     @Test
     public void testProjectParser() {
-        ProjectParser projectParser = new ProjectParser(Paths.get("TestProjects/TestProject1"));
+        ProjectContext context = new ProjectContext();
+        context.setProjectDir(Paths.get("TestProjects/TestProject1"));
+        context.setRegExportUtil(new RegExportUtil(Paths.get("sandbox")));
+
+        ProjectParser projectParser = new ProjectParser(context);
         Project project = projectParser.parseProject();
 
         System.out.println("done");
@@ -20,7 +25,12 @@ public class ProjectParserTest {
 
     @Test
     public void testMenuRegSpec() {
-        ProjectParser projectParser = new ProjectParser(Paths.get("TestProjects/TestProject1"));
+        ProjectContext context = new ProjectContext();
+        context.setProjectDir(Paths.get("TestProjects/TestProject1"));
+        context.setRegExportUtil(new RegExportUtil(Paths.get("sandbox")));
+        context.setSyncDir(context.getProjectDir().resolve("Sync"));
+
+        ProjectParser projectParser = new ProjectParser(context);
         Project project = projectParser.parseProject();
         project.buildRegSpecs();
         project.exportRegSpecs();
