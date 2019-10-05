@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static io.github.alessandroscarlatti.WindowsContextMenuHelper.executeBat;
 import static io.github.alessandroscarlatti.WindowsContextMenuHelper.resourceStr;
 
 /**
@@ -35,9 +36,9 @@ public class Project {
         }
     }
 
-    public void exportRegSpecs() {
+    public Path exportRegSpecs(String prefix) {
         try {
-            Path syncDir = context.getSyncDir().resolve("Sync_" + fileTimestamp());
+            Path syncDir = context.getSyncDir().resolve(prefix + fileTimestamp());
 
             // build the install, uninstall, and restore bats
             StringBuilder installBats = new StringBuilder();
@@ -87,9 +88,29 @@ public class Project {
             Files.write(syncDir.resolve("InstallAll.bat"), installBat.getBytes());
             Files.write(syncDir.resolve("UninstallAll.bat"), uninstallBat.getBytes());
             Files.write(syncDir.resolve("RestoreAll.bat"), restoreBat.getBytes());
+
+            return syncDir;
         } catch (Exception e) {
             throw new RuntimeException("Error exporting reg specs.", e);
         }
+    }
+
+    public void executeSync() {
+        // run the sync task
+        Path syncDir = exportRegSpecs("Sync_");
+
+        // execute the Uninstall bat
+        executeBat(syncDir.resolve("UninstallAll.bat"));
+
+        // execute the Install bat
+        executeBat(syncDir.resolve("InstallAll.bat"));
+    }
+
+    public void executeUninstall() {
+        Path syncDir = exportRegSpecs("Uninstall_");
+
+        // execute the Uninstall bat
+        executeBat(syncDir.resolve("UninstallAll.bat"));
     }
 
     public static String fileTimestamp() {

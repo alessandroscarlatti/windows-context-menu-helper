@@ -33,7 +33,7 @@ public class ProjectParserTest {
         ProjectParser projectParser = new ProjectParser(context);
         Project project = projectParser.parseProject();
         project.buildRegSpecs();
-        project.exportRegSpecs();
+        project.exportRegSpecs("Sync_");
 
         System.out.println("done");
     }

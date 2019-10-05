@@ -34,3 +34,32 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+jar {
+    archiveName = "ContextMenuHelper.jar"
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    manifest {
+        attributes([
+                "Main-Class" : "io.github.alessandroscarlatti.WindowsContextMenuHelper"
+        ])
+    }
+}
+
+task buildDist {
+    doLast {
+        // assemble the example dist
+        // start from an empty dist dir
+        mkdir(file("dist"))
+
+        copy {
+            from file("Project")
+            from file("build/libs/ContextMenuHelper.jar")
+            into file("dist")
+        }
+    }
+}
+
+// build the dist after building the jar
+build.finalizedBy(buildDist)

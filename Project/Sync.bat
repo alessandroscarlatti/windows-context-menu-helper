@@ -4,14 +4,19 @@ setlocal enabledelayedexpansion
 @rem ###############################################################
 @rem Sync all context menu items
 @rem ###############################################################
-set "CHECK_ERROR=if not [!ERRORLEVEL!]==[0] ( echo Sync Failed. && pause )"
 if "%1"=="/sync" goto :SYNC
 
-@rem Request Elevated Privilegese
-powershell "Start-Process cmd -ArgumentList @('/c', 'cd', '%~dp0', '&&', 'cmd', '/c', '%~dp0%~n0', '/sync') -Wait -verb runas"
-%CHECK_ERROR%
+@rem Request Elevated Privileges
+pushd "%~dp0"
+powershell -command "Start-Process cmd -ArgumentList @('/c', 'pushd', '%~dp0', '&&', 'cmd', '/c', '%~dp0%~nx0', '/sync') -Wait -verb runas; exit $lastExitCode"
+call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 
 :SYNC
-java -jar ContextMenuHelper.jar sync
+java -Dcmh.project.task="sync" -Dcmh.project.dir="%~dp0." -jar ContextMenuHelper.jar
+call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
+
+:CHECK_ERROR
+if not [%1]==[0] ( echo Sync Failed. && pause )
+exit /b %1
