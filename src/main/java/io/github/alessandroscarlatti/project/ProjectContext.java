@@ -12,7 +12,7 @@ public class ProjectContext {
 
     private Path projectDir;
     private Path syncDir;
-    private ProjectConfig projectConfig = new ProjectConfig();
+    private ProjectConfig projectConfig;
     private RegExportUtil regExportUtil;
 
     public ProjectConfig getProjectConfig() {

@@ -33,6 +33,9 @@ public class ProjectParser {
 
     // build a list of context menu items found within the project dir.
     public Project parseProject() {
+        // parse the project config
+        projectConfig = parseProjectConfig();
+        projectContext.setProjectConfig(projectConfig);
 
         // find the dirs in the project that contain menus or commands
         List<Path> menuDirs = findMenuDirs(projectDir);
@@ -56,6 +59,35 @@ public class ProjectParser {
 
         // create the project
         return new Project(projectContext, contextMenuItems);
+    }
+
+    private ProjectConfig parseProjectConfig() {
+        Properties commandProperties = overlayProperties(new Properties[]{
+            defaultProjectProperties(), // hardcoded defaults
+            userProjectProperties()     // overlay any user-provided properties
+        });
+
+        return ProjectConfig.fromProperties(commandProperties);
+    }
+
+    private Properties defaultProjectProperties() {
+        Properties props = new Properties();
+        props.setProperty(ProjectConfig.PROP_REG_ID_AUTO_GENERATE, "true");
+        props.setProperty(ProjectConfig.PROP_REG_ID, "");  // blank so that it will print in the properties file if we have to generate it ourselves
+        return props;
+    }
+
+    private Properties userProjectProperties() {
+        // can read from a .properties file (if exists)
+        Path configFile = ProjectParser.findFirstFileByExample(projectDir, "project.properties");
+
+        // user-provided properties file is not required
+        if (configFile == null)
+            // return empty properties
+            return new Properties();
+        else
+            // parse the menu config file
+            return ProjectParser.readPropertiesFile(configFile);
     }
 
     public static void sortContextMenuItems(List<ContextMenuItem> items) {

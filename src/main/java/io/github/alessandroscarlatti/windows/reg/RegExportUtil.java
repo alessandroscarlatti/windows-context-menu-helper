@@ -3,17 +3,21 @@ package io.github.alessandroscarlatti.windows.reg;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.exec.PumpStreamHandler;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static io.github.alessandroscarlatti.project.Project.fileTimestamp;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 /**
@@ -74,6 +78,44 @@ public class RegExportUtil {
             return exitCode == 0;
         } catch (IOException e) {
             throw new RuntimeException("Error determining if reg key " + regKey + " exists", e);
+        }
+    }
+
+    public List<RegKey> getChildKeys(RegKey parentKey) {
+        try {
+            System.out.println("Querying child keys for " + parentKey);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PumpStreamHandler streamHandler = new PumpStreamHandler(baos);
+
+            CommandLine cmdLine = new CommandLine("reg");
+            cmdLine.addArgument("query");
+            cmdLine.addArgument(parentKey.getLongKeyName());
+            DefaultExecutor executor = new DefaultExecutor();
+            executor.setExitValues(new int[]{0, 1});
+            executor.setStreamHandler(streamHandler);
+            ExecuteWatchdog watchdog = new ExecuteWatchdog(timeoutMs);
+            executor.setWatchdog(watchdog);
+            int exitCode = executor.execute(cmdLine);
+
+            if (exitCode == 0) {
+                // the key exists, parse the output
+                String output = baos.toString();
+                String[] lines = output.split(System.getProperty("line.separator"));
+                List<RegKey> regKeys = new ArrayList<>();
+                for (String line : lines) {
+                    // ignore empty lines
+                    if (!line.isEmpty())
+                        regKeys.add(new RegKey(line.trim()));
+                }
+                return regKeys;
+            } else {
+                // the key does not exist, return an empty list
+                return emptyList();
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error querying child keys for" + parentKey, e);
         }
     }
 

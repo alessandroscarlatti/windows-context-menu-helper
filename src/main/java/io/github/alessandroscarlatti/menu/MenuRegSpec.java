@@ -55,7 +55,21 @@ public class MenuRegSpec extends AbstractRegSpec {
         setRegInstall(regInstall);
 
         // now build the uninstall .reg file
-        String regUninstall = projectContext.getRegExportUtil().uninstallToString(getAllSpecRegKeys());
+        List<RegKey> keysToRemove = new ArrayList<>();
+        List<RegKey> classesRootRegKeys = projectContext.getRegExportUtil().getChildKeys(hkeyClassesRootDirectoryBackgroundShell);
+        for (RegKey regKeyToRemove : classesRootRegKeys) {
+            if (regKeyToRemove.getShortKeyName().startsWith(rootMenu.getMenuConfig().getRegUid() + "."))
+                keysToRemove.add(regKeyToRemove);
+        }
+
+        RegKey commandStoreRegKey = new RegKey("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell");
+        List<RegKey> commandStoreRegKeys = projectContext.getRegExportUtil().getChildKeys(commandStoreRegKey);
+        for (RegKey regKeyToRemove : commandStoreRegKeys) {
+            if (regKeyToRemove.getShortKeyName().startsWith(rootMenu.getMenuConfig().getRegUid() + "."))
+                keysToRemove.add(regKeyToRemove);
+        }
+
+        String regUninstall = projectContext.getRegExportUtil().uninstallToString(keysToRemove);
         setRegUninstall(regUninstall);
     }
 

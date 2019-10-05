@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Alessandro Scarlatti
@@ -28,5 +29,12 @@ public class RegExportUtilTest {
         RegExportUtil regExportUtil = new RegExportUtil(Paths.get("sandbox"), 2000, false, "utf-16");
         String script = regExportUtil.exportToString(Arrays.asList(regKey1, regKey2));
         System.out.println(script);
+    }
+
+    @Test
+    public void testRegExportUtilGetChildKeys() {
+        RegExportUtil regExportUtil = new RegExportUtil(Paths.get("sandbox"));
+        List<RegKey> regKeys = regExportUtil.getChildKeys(new RegKey("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell\\"));
+        System.out.println(regKeys);
     }
 }
