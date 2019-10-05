@@ -58,7 +58,7 @@ public class CommandParser {
 
     private Properties defaultCommandProperties() {
         Properties props = new Properties();
-        props.setProperty(PROP_REG_UID, parentMenu == null ? buildDefaultRegUid() : parentMenu.getMenuConfig().getRegUid());
+        props.setProperty(PROP_REG_UID, buildDefaultRegUid());
         return props;
     }
 
@@ -96,8 +96,16 @@ public class CommandParser {
 
     private String parseRegName() {
         // create a reg name of the form {menu.reg.id}.{condensed menu text name + unique id}
-        String regCommandName = parseCommandText().replaceAll("\\s", "");
-        return commandConfig.getRegUid() + "." + regCommandName;
+        StringBuilder sb = new StringBuilder(commandConfig.getRegUid());
+        Menu parentMenu = this.parentMenu;
+        while (parentMenu != null) {
+            sb.insert(0, ".");
+            sb.insert(0, parentMenu.getMenuConfig().getRegUid());
+            parentMenu = parentMenu.getParent();
+        }
+        sb.insert(0, ".");
+        sb.insert(0, projectContext.getProjectConfig().getRegId());
+        return sb.toString();
     }
 
     private String buildDefaultRegUid() {

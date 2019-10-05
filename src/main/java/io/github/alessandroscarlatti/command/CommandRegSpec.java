@@ -6,6 +6,8 @@ import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
 import io.github.alessandroscarlatti.windows.reg.RegValue;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.github.alessandroscarlatti.windows.reg.RegType.REG_SZ;
 import static java.util.Collections.singletonList;
@@ -35,6 +37,10 @@ public class CommandRegSpec extends AbstractRegSpec {
         hkeyClassesRootDirectoryBackgroundShell = new RegKey("HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\" + rootCommand.getRegName());
         hkeyClassesRootDirectoryBackgroundShell.addRegValue(new RegValue("MUIVerb", REG_SZ, rootCommand.getText()));
 
+        if (rootCommand.getIcon() != null) {
+            hkeyClassesRootDirectoryBackgroundShell.addRegValue(new RegValue("Icon", REG_SZ, rootCommand.getIcon().getFile().toString()));
+        }
+
         RegKey commandRegKey = hkeyClassesRootDirectoryBackgroundShell.addChildRegKey("command");
         commandRegKey.addRegValue(new RegValue(null, REG_SZ, rootCommand.getBat().toAbsolutePath().toString()));
 
@@ -45,6 +51,19 @@ public class CommandRegSpec extends AbstractRegSpec {
         // now build the uninstall .reg file
         String regUninstall = projectContext.getRegExportUtil().uninstallToString(hkeyClassesRootDirectoryBackgroundShell);
         setRegUninstall(regUninstall);
+    }
+
+    public List<RegKey> getAllRegKeysByPrefix(String prefix) {
+        // get all the reg keys that would be part of the project
+        List<RegKey> allRegKeys = new ArrayList<>();
+        RegKey commandStoreRegKey = new RegKey("HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\");
+        List<RegKey> commandStoreRegKeys = projectContext.getRegExportUtil().getChildKeys(commandStoreRegKey);
+        for (RegKey regKeyToRemove : commandStoreRegKeys) {
+            if (regKeyToRemove.getShortKeyName().startsWith(prefix + "."))
+                allRegKeys.add(regKeyToRemove);
+        }
+
+        return allRegKeys;
     }
 
     @Override

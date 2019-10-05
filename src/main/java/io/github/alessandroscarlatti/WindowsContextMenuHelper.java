@@ -8,6 +8,8 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -22,9 +24,11 @@ import java.util.Objects;
  */
 public class WindowsContextMenuHelper {
 
+    private static final Logger log = LoggerFactory.getLogger(WindowsContextMenuHelper.class);
+
     public static void main(String[] args) {
         String strTask = reqProperty("cmh.project.task");
-        Path projectDir = Paths.get(reqProperty("cmh.project.dir")).toAbsolutePath();
+        Path projectDir = Paths.get(reqProperty("cmh.project.dir")).toAbsolutePath().normalize();
 
         // set up the project context
         ProjectContext context = new ProjectContext();
@@ -33,7 +37,7 @@ public class WindowsContextMenuHelper {
         context.setSyncDir(projectDir.resolve("Sync"));
 
         // parse the project
-        System.out.println("Parsing project in dir " + projectDir);
+        log.info("Parsing project in dir " + projectDir);
         ProjectParser projectParser = new ProjectParser(context);
         Project project = projectParser.parseProject();
 
@@ -69,7 +73,7 @@ public class WindowsContextMenuHelper {
         try {
             // make sure to use absolute path to bat
             bat = bat.toAbsolutePath();
-            System.out.println("Executing " + bat);
+            log.info("Executing " + bat);
 
             CommandLine cmdLine = new CommandLine(bat.toString());
             DefaultExecutor executor = new DefaultExecutor();

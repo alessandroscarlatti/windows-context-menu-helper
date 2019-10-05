@@ -1,6 +1,10 @@
 package io.github.alessandroscarlatti.project;
 
+import io.github.alessandroscarlatti.menu.MenuRegSpec;
 import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
+import io.github.alessandroscarlatti.windows.reg.RegKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +20,8 @@ import static io.github.alessandroscarlatti.WindowsContextMenuHelper.resourceStr
  * @since Saturday, 9/28/2019
  */
 public class Project {
+
+    private static final Logger log = LoggerFactory.getLogger(Project.class);
 
     // these are the context menu items parsed from the project dir
     private List<ContextMenuItem> contextMenuItems;
@@ -55,22 +61,22 @@ public class Project {
 
                     // create the install script
                     String installScript = contextMenuItem.getRegSpec().writeInstallRegScript();
-                    System.out.println("INSTALL SCRIPT:");
-                    System.out.println(installScript);
+                    log.info("INSTALL SCRIPT:");
+                    log.info(installScript);
                     Files.write(itemSyncDir.resolve("Install.reg"), installScript.getBytes());
                     installBats.append("regedit /s \"" + strItemsSyncDir + "\\Install.reg\" & %CHECK_ERROR%\n");
 
                     // create the uninstall script
                     String uninstallScript = contextMenuItem.getRegSpec().writeUninstallRegScript();
-                    System.out.println("UNINSTALL SCRIPT:");
-                    System.out.println(uninstallScript);
+                    log.info("UNINSTALL SCRIPT:");
+                    log.info(uninstallScript);
                     Files.write(itemSyncDir.resolve("Uninstall.reg"), uninstallScript.getBytes());
                     uninstallBats.append("regedit /s \"" + strItemsSyncDir + "\\Uninstall.reg\" & %CHECK_ERROR%\n");
 
                     // create the restore script
                     String restoreScript = contextMenuItem.getRegSpec().writeRestorePointRegScript();
-                    System.out.println("RESTORE SCRIPT:");
-                    System.out.println(restoreScript);
+                    log.info("RESTORE SCRIPT:");
+                    log.info(restoreScript);
                     Files.write(itemSyncDir.resolve("Restore.reg"), restoreScript.getBytes());
                     restoreBats.append("regedit /s \"" + strItemsSyncDir + "\\Restore.reg\" & %CHECK_ERROR%\n");
                 }
@@ -89,6 +95,20 @@ public class Project {
             Files.write(syncDir.resolve("UninstallAll.bat"), uninstallBat.getBytes());
             Files.write(syncDir.resolve("RestoreAll.bat"), restoreBat.getBytes());
 
+            // now build the uninstall.reg
+            MenuRegSpec menuRegSpec = new MenuRegSpec(null, context);
+            List<RegKey> regKeysToRemove = menuRegSpec.getAllRegKeysByPrefix(context.getProjectConfig().getRegId());
+            String regUninstall = context.getRegExportUtil().uninstallToString(regKeysToRemove);
+            Files.write(syncDir.resolve("Uninstall.reg"), regUninstall.getBytes());
+
+            // now build the restore.reg
+            String regRestore = context.getRegExportUtil().exportToString(regKeysToRemove);
+            Files.write(syncDir.resolve("Restore.reg"), regRestore.getBytes());
+
+            // now write the bats
+            Files.write(syncDir.resolve("Uninstall.bat"), resourceStr("/io/github/alessandroscarlatti/Uninstall.template.bat").getBytes());
+            Files.write(syncDir.resolve("Restore.bat"), resourceStr("/io/github/alessandroscarlatti/Restore.template.bat").getBytes());
+
             return syncDir;
         } catch (Exception e) {
             throw new RuntimeException("Error exporting reg specs.", e);
@@ -100,7 +120,7 @@ public class Project {
         Path syncDir = exportRegSpecs("Sync_");
 
         // execute the Uninstall bat
-        executeBat(syncDir.resolve("UninstallAll.bat"));
+        executeBat(syncDir.resolve("Uninstall.bat"));
 
         // execute the Install bat
         executeBat(syncDir.resolve("InstallAll.bat"));
@@ -110,7 +130,7 @@ public class Project {
         Path syncDir = exportRegSpecs("Uninstall_");
 
         // execute the Uninstall bat
-        executeBat(syncDir.resolve("UninstallAll.bat"));
+        executeBat(syncDir.resolve("Uninstall.bat"));
     }
 
     public static String fileTimestamp() {

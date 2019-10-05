@@ -1,9 +1,12 @@
 package io.github.alessandroscarlatti.windows.reg;
 
+import io.github.alessandroscarlatti.menu.MenuRegSpec;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,6 +28,8 @@ import static java.util.Collections.singletonList;
  * @since Friday, 10/4/2019
  */
 public class RegExportUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(RegExportUtil.class);
 
     private Path workingDir; // the temp dir where the restore point files are written during compilation
     private int timeoutMs = 60000;  // how long to wait max for the reg task to complete
@@ -48,7 +53,7 @@ public class RegExportUtil {
 
     public String exportToString(List<RegKey> regKeys) {
         // export all the reg keys as one reg script
-        System.out.println("Exporting " + regKeys.size() + " reg key(s)");
+        log.info("Exporting " + regKeys.size() + " reg key(s)");
 
         // incrementally build script, one key at a time
         StringBuilder sb = new StringBuilder();
@@ -64,7 +69,7 @@ public class RegExportUtil {
 
     private boolean regKeyExists(RegKey regKey) {
         try {
-            System.out.println("Querying if reg key " + regKey + " exists");
+            log.info("Querying if reg key " + regKey + " exists");
 
             CommandLine cmdLine = new CommandLine("reg");
             cmdLine.addArgument("query");
@@ -83,7 +88,7 @@ public class RegExportUtil {
 
     public List<RegKey> getChildKeys(RegKey parentKey) {
         try {
-            System.out.println("Querying child keys for " + parentKey);
+            log.info("Querying child keys for " + parentKey);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PumpStreamHandler streamHandler = new PumpStreamHandler(baos);
@@ -128,7 +133,7 @@ public class RegExportUtil {
             Path file = workingDir.resolve(fileName + "-" + fileTimestamp() + ".reg").toAbsolutePath();
             map.put("file", file);
 
-            System.out.println("Exporting reg key " + regKey + " to " + file);
+            log.info("Exporting reg key " + regKey + " to " + file);
 
             CommandLine cmdLine = new CommandLine("reg");
             cmdLine.addArgument("export");

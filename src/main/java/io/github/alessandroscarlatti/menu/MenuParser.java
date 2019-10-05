@@ -85,7 +85,7 @@ public class MenuParser {
 
         // choose the default reg prefix
         // or inherit the parent's reg prefix
-        props.setProperty(PROP_REG_UID, parentMenu == null ? buildDefaultRegUid() : parentMenu.getMenuConfig().getRegUid());
+        props.setProperty(PROP_REG_UID, buildDefaultRegUid());
 
         return props;
     }
@@ -120,8 +120,16 @@ public class MenuParser {
 
     private String parseRegName() {
         // create a reg name of the form {menu.reg.id}.{condensed menu text name + unique id}
-        String regMenuName = parseMenuText().replaceAll("\\s", "");
-        return menuConfig.getRegUid() + "." + regMenuName;
+        StringBuilder sb = new StringBuilder(menuConfig.getRegUid());
+        Menu parentMenu = this.parentMenu;
+        while (parentMenu != null) {
+            sb.insert(0, ".");
+            sb.insert(0, parentMenu.getMenuConfig().getRegUid());
+            parentMenu = parentMenu.getParent();
+        }
+        sb.insert(0, ".");
+        sb.insert(0, projectContext.getProjectConfig().getRegId());
+        return sb.toString();
     }
 
     private String buildDefaultRegUid() {

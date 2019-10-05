@@ -43,6 +43,10 @@ public class MenuRegSpec extends AbstractRegSpec {
         RegKey regKey = new RegKey("HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\" + rootMenu.getRegName());
         hkeyClassesRootDirectoryBackgroundShell = regKey;
 
+        if (rootMenu.getIcon() != null) {
+            hkeyClassesRootDirectoryBackgroundShell.addRegValue(new RegValue("Icon", REG_SZ, rootMenu.getIcon().getFile().toString()));
+        }
+
         // set the menu text
         regKey.addRegValue(new RegValue("MUIVerb", REG_SZ, rootMenu.getText()));
 
@@ -55,22 +59,27 @@ public class MenuRegSpec extends AbstractRegSpec {
         setRegInstall(regInstall);
 
         // now build the uninstall .reg file
-        List<RegKey> keysToRemove = new ArrayList<>();
-        List<RegKey> classesRootRegKeys = projectContext.getRegExportUtil().getChildKeys(hkeyClassesRootDirectoryBackgroundShell);
+        String regUninstall = projectContext.getRegExportUtil().uninstallToString(getAllSpecRegKeys());
+        setRegUninstall(regUninstall);
+    }
+
+    public List<RegKey> getAllRegKeysByPrefix(String prefix) {
+        // get all the reg keys that would be part of the project
+        List<RegKey> allRegKeys = new ArrayList<>();
+        List<RegKey> classesRootRegKeys = projectContext.getRegExportUtil().getChildKeys(new RegKey("HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\"));
         for (RegKey regKeyToRemove : classesRootRegKeys) {
-            if (regKeyToRemove.getShortKeyName().startsWith(rootMenu.getMenuConfig().getRegUid() + "."))
-                keysToRemove.add(regKeyToRemove);
+            if (regKeyToRemove.getShortKeyName().startsWith(prefix + "."))
+                allRegKeys.add(regKeyToRemove);
         }
 
         RegKey commandStoreRegKey = new RegKey("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell");
         List<RegKey> commandStoreRegKeys = projectContext.getRegExportUtil().getChildKeys(commandStoreRegKey);
         for (RegKey regKeyToRemove : commandStoreRegKeys) {
-            if (regKeyToRemove.getShortKeyName().startsWith(rootMenu.getMenuConfig().getRegUid() + "."))
-                keysToRemove.add(regKeyToRemove);
+            if (regKeyToRemove.getShortKeyName().startsWith(prefix + "."))
+                allRegKeys.add(regKeyToRemove);
         }
 
-        String regUninstall = projectContext.getRegExportUtil().uninstallToString(keysToRemove);
-        setRegUninstall(regUninstall);
+        return allRegKeys;
     }
 
     @Override
@@ -102,6 +111,10 @@ public class MenuRegSpec extends AbstractRegSpec {
         RegKey regKey = new RegKey("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell\\" + menu.getRegName());
         hkeyLocalMachineExplorerCommandStoreShells.add(regKey);
 
+        if (menu.getIcon() != null) {
+            regKey.addRegValue(new RegValue("Icon", REG_SZ, menu.getIcon().getFile().toString()));
+        }
+
         // set the menu text
         regKey.addRegValue(new RegValue("MUIVerb", REG_SZ, menu.getText()));
 
@@ -123,6 +136,10 @@ public class MenuRegSpec extends AbstractRegSpec {
 
         RegKey commandRegKey = regKey.addChildRegKey("command");
         commandRegKey.addRegValue(new RegValue(null, REG_SZ, command.getBat().toAbsolutePath().toString()));
+
+        if (command.getIcon() != null) {
+            regKey.addRegValue(new RegValue("Icon", REG_SZ, command.getIcon().getFile().toString()));
+        }
 
         // set the command text
         regKey.addRegValue(new RegValue("MUIVerb", REG_SZ, command.getText()));

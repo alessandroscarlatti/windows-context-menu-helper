@@ -5,6 +5,7 @@ import io.github.alessandroscarlatti.project.ProjectContext;
 import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.windows.menu.Icon;
 import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
+import io.github.alessandroscarlatti.windows.reg.RegKey;
 
 import java.util.ArrayList;
 import java.util.List;
