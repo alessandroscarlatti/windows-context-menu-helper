@@ -9,6 +9,7 @@ import io.github.alessandroscarlatti.windows.reg.RegValue;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static io.github.alessandroscarlatti.windows.reg.RegType.REG_SZ;
@@ -32,6 +33,9 @@ public class MenuRegSpec extends AbstractRegSpec {
     // the context for the project
     private ProjectContext projectContext;
 
+    private static final String HKCR_DIR_SHELL_PATH = "HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\";
+    private static final String HKLM_COMMAND_STORE_SHELL_PATH = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell\\";
+
     public MenuRegSpec(Menu rootMenu, ProjectContext projectContext) {
         this.rootMenu = rootMenu;
         this.projectContext = projectContext;
@@ -40,19 +44,11 @@ public class MenuRegSpec extends AbstractRegSpec {
     @Override
     public void buildSpec() {
         // this menu is the root menu since there is no parent.
-        RegKey regKey = new RegKey("HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\" + rootMenu.getRegName());
+        RegKey regKey = new RegKey(HKCR_DIR_SHELL_PATH + rootMenu.getRegName());
         hkeyClassesRootDirectoryBackgroundShell = regKey;
 
-        if (rootMenu.getIcon() != null) {
-            hkeyClassesRootDirectoryBackgroundShell.addRegValue(new RegValue("Icon", REG_SZ, rootMenu.getIcon().getFile().toString()));
-        }
-
-        // set the menu text
-        regKey.addRegValue(new RegValue("MUIVerb", REG_SZ, rootMenu.getText()));
-
-        // build any subcommands
-        RegValue subCommandsRegValue = buildSubCommandsRegValue(rootMenu);
-        regKey.addRegValue(subCommandsRegValue);
+        // build out the values for the menu's reg key
+        addMenuDetails(rootMenu, regKey);
 
         // now build the install .reg file
         String regInstall = projectContext.getRegExportUtil().installToString(getAllSpecRegKeys());
@@ -63,23 +59,25 @@ public class MenuRegSpec extends AbstractRegSpec {
         setRegUninstall(regUninstall);
     }
 
+    private void addMenuDetails(Menu menu, RegKey menuRegKey) {
+        if (menu.getIcon() != null) {
+            menuRegKey.addRegValue(new RegValue("Icon", REG_SZ, menu.getIcon().getFile().toString()));
+        }
+
+        // set the menu text
+        menuRegKey.addRegValue(new RegValue("MUIVerb", REG_SZ, menu.getText()));
+
+        // build any subcommands
+        RegValue subCommandsRegValue = buildSubCommandsRegValue(menu);
+        menuRegKey.addRegValue(subCommandsRegValue);
+    }
+
     public List<RegKey> getAllRegKeysByPrefix(String prefix) {
         // get all the reg keys that would be part of the project
-        List<RegKey> allRegKeys = new ArrayList<>();
-        List<RegKey> classesRootRegKeys = projectContext.getRegExportUtil().getChildKeys(new RegKey("HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\"));
-        for (RegKey regKeyToRemove : classesRootRegKeys) {
-            if (regKeyToRemove.getShortKeyName().startsWith(prefix + "."))
-                allRegKeys.add(regKeyToRemove);
-        }
-
-        RegKey commandStoreRegKey = new RegKey("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell");
-        List<RegKey> commandStoreRegKeys = projectContext.getRegExportUtil().getChildKeys(commandStoreRegKey);
-        for (RegKey regKeyToRemove : commandStoreRegKeys) {
-            if (regKeyToRemove.getShortKeyName().startsWith(prefix + "."))
-                allRegKeys.add(regKeyToRemove);
-        }
-
-        return allRegKeys;
+        return projectContext.getRegExportUtil().getChildKeysByPrefix(Arrays.asList(
+            new RegKey(HKCR_DIR_SHELL_PATH),
+            new RegKey(HKLM_COMMAND_STORE_SHELL_PATH)
+        ), prefix);
     }
 
     @Override
@@ -108,19 +106,10 @@ public class MenuRegSpec extends AbstractRegSpec {
         // this menu has a parent menu, so it's not a root menu.
         // add this menu to the list of subcommands
         // also add this menu to the command store reg keys
-        RegKey regKey = new RegKey("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell\\" + menu.getRegName());
+        RegKey regKey = new RegKey(HKLM_COMMAND_STORE_SHELL_PATH + menu.getRegName());
         hkeyLocalMachineExplorerCommandStoreShells.add(regKey);
 
-        if (menu.getIcon() != null) {
-            regKey.addRegValue(new RegValue("Icon", REG_SZ, menu.getIcon().getFile().toString()));
-        }
-
-        // set the menu text
-        regKey.addRegValue(new RegValue("MUIVerb", REG_SZ, menu.getText()));
-
-        // build any subcommands
-        // and add to the list of subcommands for the parent menu
-        regKey.addRegValue(buildSubCommandsRegValue(menu));
+        addMenuDetails(menu, regKey);
         parentSubCommands.add(regKey);
     }
 
@@ -128,7 +117,7 @@ public class MenuRegSpec extends AbstractRegSpec {
         // this command has a parent menu, so it's not a root command.
         // add this menu to the list of subcommands
         // also add this menu to the command store reg keys
-        RegKey regKey = new RegKey("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell\\" + command.getRegName());
+        RegKey regKey = new RegKey(HKLM_COMMAND_STORE_SHELL_PATH + command.getRegName());
         hkeyLocalMachineExplorerCommandStoreShells.add(regKey);
 
         // build any subcommands

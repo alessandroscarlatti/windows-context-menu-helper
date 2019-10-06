@@ -91,6 +91,7 @@ public class Project {
             String restoreBat = resourceStr("/io/github/alessandroscarlatti/RestoreAll.template.bat")
                 .replace("${RESTORE_BATS}", restoreBats);
 
+            Files.createDirectories(syncDir);
             Files.write(syncDir.resolve("InstallAll.bat"), installBat.getBytes());
             Files.write(syncDir.resolve("UninstallAll.bat"), uninstallBat.getBytes());
             Files.write(syncDir.resolve("RestoreAll.bat"), restoreBat.getBytes());

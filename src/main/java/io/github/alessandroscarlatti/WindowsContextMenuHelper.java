@@ -27,31 +27,36 @@ public class WindowsContextMenuHelper {
     private static final Logger log = LoggerFactory.getLogger(WindowsContextMenuHelper.class);
 
     public static void main(String[] args) {
-        String strTask = reqProperty("cmh.project.task");
-        Path projectDir = Paths.get(reqProperty("cmh.project.dir")).toAbsolutePath().normalize();
+        try {
+            String strTask = reqProperty("cmh.project.task");
+            Path projectDir = Paths.get(reqProperty("cmh.project.dir")).toAbsolutePath().normalize();
 
-        // set up the project context
-        ProjectContext context = new ProjectContext();
-        context.setProjectDir(projectDir);
-        context.setRegExportUtil(new RegExportUtil(projectDir));
-        context.setSyncDir(projectDir.resolve("Sync"));
+            // set up the project context
+            ProjectContext context = new ProjectContext();
+            context.setProjectDir(projectDir);
+            context.setRegExportUtil(new RegExportUtil(projectDir));
+            context.setSyncDir(projectDir.resolve("Sync"));
 
-        // parse the project
-        log.info("Parsing project in dir " + projectDir);
-        ProjectParser projectParser = new ProjectParser(context);
-        Project project = projectParser.parseProject();
+            // parse the project
+            log.info("Parsing project in dir " + projectDir);
+            ProjectParser projectParser = new ProjectParser(context);
+            Project project = projectParser.parseProject();
 
-        // build the reg specs.
-        // This actually builds a Sync_ dir with bats
-        project.buildRegSpecs();
+            // build the reg specs.
+            // This actually builds a Sync_ dir with bats
+            project.buildRegSpecs();
 
-        // run the correct bat based on the specified task
-        if (strTask.equals("sync")) {
-            project.executeSync();
-        }
+            // run the correct bat based on the specified task
+            if (strTask.equals("sync")) {
+                project.executeSync();
+            }
 
-        if (strTask.equals("uninstall")) {
-            project.executeUninstall();
+            if (strTask.equals("uninstall")) {
+                project.executeUninstall();
+            }
+        } catch (Exception e) {
+            log.error("Error running task.", e);
+            throw e;
         }
     }
 

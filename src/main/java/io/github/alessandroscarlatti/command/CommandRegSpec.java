@@ -7,6 +7,7 @@ import io.github.alessandroscarlatti.windows.reg.RegValue;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static io.github.alessandroscarlatti.windows.reg.RegType.REG_SZ;
@@ -26,6 +27,8 @@ public class CommandRegSpec extends AbstractRegSpec {
 
     private ProjectContext projectContext;
 
+    private static final String HKCR_DIR_SHELL_PATH = "HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\";
+
     public CommandRegSpec(Command rootCommand, ProjectContext projectContext) {
         this.rootCommand = rootCommand;
         this.projectContext = projectContext;
@@ -34,7 +37,7 @@ public class CommandRegSpec extends AbstractRegSpec {
     @Override
     public void buildSpec() {
         // this command is in the system context menu since there is no parent.
-        hkeyClassesRootDirectoryBackgroundShell = new RegKey("HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\" + rootCommand.getRegName());
+        hkeyClassesRootDirectoryBackgroundShell = new RegKey(HKCR_DIR_SHELL_PATH + rootCommand.getRegName());
         hkeyClassesRootDirectoryBackgroundShell.addRegValue(new RegValue("MUIVerb", REG_SZ, rootCommand.getText()));
 
         if (rootCommand.getIcon() != null) {
@@ -55,15 +58,9 @@ public class CommandRegSpec extends AbstractRegSpec {
 
     public List<RegKey> getAllRegKeysByPrefix(String prefix) {
         // get all the reg keys that would be part of the project
-        List<RegKey> allRegKeys = new ArrayList<>();
-        RegKey commandStoreRegKey = new RegKey("HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\");
-        List<RegKey> commandStoreRegKeys = projectContext.getRegExportUtil().getChildKeys(commandStoreRegKey);
-        for (RegKey regKeyToRemove : commandStoreRegKeys) {
-            if (regKeyToRemove.getShortKeyName().startsWith(prefix + "."))
-                allRegKeys.add(regKeyToRemove);
-        }
-
-        return allRegKeys;
+        return projectContext.getRegExportUtil().getChildKeysByPrefix(Arrays.asList(
+            new RegKey(HKCR_DIR_SHELL_PATH)
+        ), prefix);
     }
 
     @Override

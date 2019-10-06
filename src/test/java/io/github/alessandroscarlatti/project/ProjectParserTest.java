@@ -37,4 +37,18 @@ public class ProjectParserTest {
 
         System.out.println("done");
     }
+
+    @Test
+    public void testMenuRegSpec2() {
+        ProjectContext context = new ProjectContext();
+        context.setProjectDir(Paths.get("TestProjects/TestProject2"));
+        context.setRegExportUtil(new RegExportUtil(Paths.get("sandbox")));
+        context.setSyncDir(context.getProjectDir().resolve("Sync"));
+
+        ProjectParser projectParser = new ProjectParser(context);
+        Project project = projectParser.parseProject();
+        project.buildRegSpecs();
+
+        System.out.println("done");
+    }
 }

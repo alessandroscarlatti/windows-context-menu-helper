@@ -75,7 +75,11 @@ public class MenuParser {
             userMenuProperties()     // overlay any user-provided properties
         });
 
-        return MenuConfig.fromProperties(commandProperties);
+        MenuConfig menuConfig = MenuConfig.fromProperties(commandProperties);
+        if (menuConfig.getRegUid().isEmpty()) {
+            menuConfig.setRegUid(buildDefaultRegUid());
+        }
+        return menuConfig;
     }
 
     private Properties defaultMenuProperties() {

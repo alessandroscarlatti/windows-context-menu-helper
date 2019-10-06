@@ -86,6 +86,25 @@ public class RegExportUtil {
         }
     }
 
+
+
+    public List<RegKey> getChildKeysByPrefix(RegKey parentKey, String prefix) {
+        return getChildKeysByPrefix(singletonList(parentKey), prefix);
+    }
+
+    public List<RegKey> getChildKeysByPrefix(List<RegKey> parentKeys, String prefix) {
+        // get all direct child keys underneath each parent key listed having the specific prefix.
+        List<RegKey> allRegKeys = new ArrayList<>();
+        for (RegKey parentKey : parentKeys) {
+            List<RegKey> classesRootRegKeys = getChildKeys(parentKey);
+            for (RegKey regKeyToRemove : classesRootRegKeys) {
+                if (regKeyToRemove.getShortKeyName().startsWith(prefix + "."))
+                    allRegKeys.add(regKeyToRemove);
+            }
+        }
+        return allRegKeys;
+    }
+
     public List<RegKey> getChildKeys(RegKey parentKey) {
         try {
             log.info("Querying child keys for " + parentKey);
