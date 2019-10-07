@@ -54,12 +54,13 @@ task buildDist {
     doLast {
         // assemble the example dist
         // start from an empty dist dir
-        mkdir(file("dist"))
+        def projectBaseDir =file("MenuProjectBase")
+        mkdir(projectBaseDir)
 
         copy {
             from file("Project")
             from file("build/libs/ContextMenuHelper.jar")
-            into file("dist")
+            into projectBaseDir
         }
     }
 }
