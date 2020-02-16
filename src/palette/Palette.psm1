@@ -1,6 +1,7 @@
 Add-Type -AssemblyName PresentationFramework
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows")
+[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Interop")
 
 function runScriptBlock([parameter(position = 0)] $scriptBlock) {
     try {
@@ -27,9 +28,9 @@ function BuildAppXaml {
     x:Name="Window"
 	Title="Available Actions"
 	SizeToContent="WidthAndHeight"
-	ResizeMode="CanMinimize"
 	WindowStartupLocation="CenterScreen"
-	MaxHeight="600"
+	MinHeight="600"
+	MinWidth="600"
 	>
 	<StackPanel Name="panelWindow" Margin="10">
 	</StackPanel>
@@ -49,6 +50,33 @@ function InitApp($window) {
     $window.Add_Deactivated({
         $sender = $args[0]
         $sender.Topmost = $true;
+    })
+
+    $window.Add_Activated({
+        $Signature = @"
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
+"@
+        Write-Host "adding type"
+        Add-Type -MemberDefinition $Signature -Name "EmbedNotepad" -Namespace Win32Functions -PassThru
+
+        $helper = (new-object System.Windows.Interop.WindowInteropHelper $window)
+        $helper.Handle
+        Write-Host "helper" $helper
+        Write-Host "helper.Handle" $helper.Handle
+
+        $psWindow = [Win32Functions.EmbedNotepad]::FindWindow("powershell", "Available Actions")
+
+        $notepadWindow = [Win32Functions.EmbedNotepad]::FindWindow($null, "Palette - Clover")
+        Write-Host "notepad window" $notepadWindow
+        [Win32Functions.EmbedNotepad]::SetParent($notepadWindow, $helper.Handle);
+        [Win32Functions.EmbedNotepad]::MoveWindow($notepadWindow, 0, 0, 600, 600, $true);
     })
 }
 

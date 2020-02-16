@@ -1,6 +1,7 @@
 package io.github.alessandroscarlatti.menu;
 
 import io.github.alessandroscarlatti.command.Command;
+import io.github.alessandroscarlatti.group.Group;
 import io.github.alessandroscarlatti.project.ProjectContext;
 import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.windows.menu.Icon;
@@ -23,6 +24,7 @@ public class Menu implements ContextMenuItem {
     private String regName;  // the name of the Registry key for this menu, eg, SomeTool.SomeMenu
     private ProjectContext projectContext;
     private MenuConfig menuConfig;
+    private Group group;
 
     // the reg spec to use for this context menu.
     // only a root level menu has a reg spec.
@@ -46,6 +48,10 @@ public class Menu implements ContextMenuItem {
             ((Command) child).setParent(parent);
             ((Command) child).setRegSpec(null);  // no reg spec for a child command
             ((Command) child).setRegSpec(null);  // no reg spec for a child command
+        }
+
+        if (child instanceof Group) {
+            ((Group) child).setParent(parent);
         }
     }
 
@@ -116,5 +122,13 @@ public class Menu implements ContextMenuItem {
 
     public void setMenuConfig(MenuConfig menuConfig) {
         this.menuConfig = menuConfig;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 }

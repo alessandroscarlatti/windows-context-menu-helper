@@ -191,6 +191,22 @@ public class ProjectParser {
         }
     }
 
+    // find dirs containing Group_
+    public static List<Path> findGroupDirs(Path baseDir) {
+        try {
+            List<Path> groupDirs = new ArrayList<>();
+            for (Path dir : Files.list(baseDir).collect(toList())) {
+                if (Files.isDirectory(dir) && dir.getFileName().toString().contains("Group_")) {
+                    log.info("Found group dir " + dir);
+                    groupDirs.add(dir);
+                }
+            }
+            return groupDirs;
+        } catch (Exception e) {
+            throw new RuntimeException("Error iterating dir " + baseDir, e);
+        }
+    }
+
     public static Path findIconFile(Path baseDir) {
         return findFirstFileByExample(baseDir, ".ico");
     }

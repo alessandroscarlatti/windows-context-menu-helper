@@ -6,6 +6,7 @@ package io.github.alessandroscarlatti.windows.reg;
  */
 public enum RegType {
     // data types corresponding to the Type column in regedit
+    REG_DWORD("REG_DWORD"),
     REG_SZ("REG_SZ");
 
     private String regName;  // the string token for this type

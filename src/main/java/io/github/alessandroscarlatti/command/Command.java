@@ -1,5 +1,6 @@
 package io.github.alessandroscarlatti.command;
 
+import io.github.alessandroscarlatti.group.Group;
 import io.github.alessandroscarlatti.menu.Menu;
 import io.github.alessandroscarlatti.project.ProjectContext;
 import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
@@ -19,6 +20,8 @@ public class Command implements ContextMenuItem {
     private String text;  // the text that will be displayed on the menu for this command
     private String regName;  // the name of the Registry key for this command, eg, SomeTool.SomeCommand
     private Menu parent;
+    private Group group;
+    private CommandConfig config;
 
     private ProjectContext projectContext;
 
@@ -26,7 +29,8 @@ public class Command implements ContextMenuItem {
     // only a root level command has a reg spec.
     private AbstractRegSpec regSpec;
 
-    public Command(ProjectContext projectContext) {
+    public Command(CommandConfig config, ProjectContext projectContext) {
+        this.config = config;
         regSpec = new CommandRegSpec(this, projectContext);
         this.projectContext = projectContext;
     }
@@ -90,5 +94,21 @@ public class Command implements ContextMenuItem {
 
     public void setRegSpec(AbstractRegSpec regSpec) {
         this.regSpec = regSpec;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public CommandConfig getConfig() {
+        return config;
+    }
+
+    public void setConfig(CommandConfig config) {
+        this.config = config;
     }
 }

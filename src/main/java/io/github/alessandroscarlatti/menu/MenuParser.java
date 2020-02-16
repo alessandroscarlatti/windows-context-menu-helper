@@ -2,6 +2,8 @@ package io.github.alessandroscarlatti.menu;
 
 import io.github.alessandroscarlatti.command.Command;
 import io.github.alessandroscarlatti.command.CommandParser;
+import io.github.alessandroscarlatti.group.Group;
+import io.github.alessandroscarlatti.group.GroupParser;
 import io.github.alessandroscarlatti.project.ProjectContext;
 import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.windows.menu.Icon;
@@ -42,29 +44,36 @@ public class MenuParser {
         Menu menu = new Menu(menuConfig, projectContext);
         menu.setText(parseMenuText());
         menu.setIcon(parseMenuIcon());
-        menu.setRegName(parseRegName());
 
         // find the dirs in the menu dir that contain menus or commands
+        List<Path> groupDirs = ProjectParser.findGroupDirs(menuDir);
         List<Path> menuDirs = ProjectParser.findMenuDirs(menuDir);
         List<Path> commandDirs = ProjectParser.findCommandDirs(menuDir);
 
         List<ContextMenuItem> contextMenuItems = new ArrayList<>();
 
         // now parse these into context menu items
+        for (Path groupDir : groupDirs) {
+            Group group = new GroupParser(groupDir, projectContext, menu).parseGroup();
+            contextMenuItems.add(group);
+        }
+
         for (Path menuDir : menuDirs) {
             Menu subMenu = new MenuParser(menuDir, projectContext, menu).parseMenu();
-            Menu.connectParentToChild(menu, subMenu);
             contextMenuItems.add(subMenu);
         }
 
         for (Path commandDir : commandDirs) {
             Command command = new CommandParser(commandDir, projectContext, menu).parseCommand();
-            Menu.connectParentToChild(menu, command);
             contextMenuItems.add(command);
         }
 
         // sort the items, since they are still unordered
         ProjectParser.sortContextMenuItems(contextMenuItems);
+
+        for (ContextMenuItem contextMenuItem : contextMenuItems) {
+            Menu.connectParentToChild(menu, contextMenuItem);
+        }
 
         return menu;
     }
@@ -120,20 +129,6 @@ public class MenuParser {
             return new Icon(iconFile);  // use icon found in the directory
         else
             return null;  // use no icon
-    }
-
-    private String parseRegName() {
-        // create a reg name of the form {menu.reg.id}.{condensed menu text name + unique id}
-        StringBuilder sb = new StringBuilder(menuConfig.getRegUid());
-        Menu parentMenu = this.parentMenu;
-        while (parentMenu != null) {
-            sb.insert(0, ".");
-            sb.insert(0, parentMenu.getMenuConfig().getRegUid());
-            parentMenu = parentMenu.getParent();
-        }
-        sb.insert(0, ".");
-        sb.insert(0, projectContext.getProjectConfig().getRegId());
-        return sb.toString();
     }
 
     private String buildDefaultRegUid() {

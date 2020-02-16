@@ -1,6 +1,7 @@
 package io.github.alessandroscarlatti.menu;
 
 import io.github.alessandroscarlatti.command.Command;
+import io.github.alessandroscarlatti.command.CommandRegSpec;
 import io.github.alessandroscarlatti.project.ProjectContext;
 import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.windows.reg.RegKey;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.github.alessandroscarlatti.windows.reg.RegType.REG_DWORD;
 import static io.github.alessandroscarlatti.windows.reg.RegType.REG_SZ;
 import static java.util.stream.Collectors.toList;
 
@@ -44,6 +46,7 @@ public class MenuRegSpec extends AbstractRegSpec {
     @Override
     public void buildSpec() {
         // this menu is the root menu since there is no parent.
+        rootMenu.setRegName(parseRegName(rootMenu));
         RegKey regKey = new RegKey(HKCR_DIR_SHELL_PATH + rootMenu.getRegName());
         hkeyClassesRootDirectoryBackgroundShell = regKey;
 
@@ -59,6 +62,26 @@ public class MenuRegSpec extends AbstractRegSpec {
         setRegUninstall(regUninstall);
     }
 
+    private String parseRegName(Menu menu) {
+        // create a reg name of the form {menu.reg.id}.{condensed menu text name + unique id}
+        StringBuilder sb = new StringBuilder(menu.getMenuConfig().getRegUid());
+
+        if (menu.getGroup() != null) {
+            sb.insert(0, ".");
+            sb.insert(0, menu.getGroup().getRegUid());
+        }
+
+        Menu parentMenu = menu.getParent();
+        while (parentMenu != null) {
+            sb.insert(0, ".");
+            sb.insert(0, parentMenu.getMenuConfig().getRegUid());
+            parentMenu = parentMenu.getParent();
+        }
+        sb.insert(0, ".");
+        sb.insert(0, projectContext.getProjectConfig().getRegId());
+        return sb.toString();
+    }
+
     private void addMenuDetails(Menu menu, RegKey menuRegKey) {
         if (menu.getIcon() != null) {
             menuRegKey.addRegValue(new RegValue("Icon", REG_SZ, menu.getIcon().getFile().toString()));
@@ -66,6 +89,12 @@ public class MenuRegSpec extends AbstractRegSpec {
 
         // set the menu text
         menuRegKey.addRegValue(new RegValue("MUIVerb", REG_SZ, menu.getText()));
+
+        if (menu.getGroup() != null) {
+            if (menu.getGroup().isLastInGroup(menu)) {
+                menuRegKey.addRegValue(new RegValue("CommandFlags", REG_DWORD, "dword:00000040"));
+            }
+        }
 
         // build any subcommands
         RegValue subCommandsRegValue = buildSubCommandsRegValue(menu);
@@ -106,6 +135,7 @@ public class MenuRegSpec extends AbstractRegSpec {
         // this menu has a parent menu, so it's not a root menu.
         // add this menu to the list of subcommands
         // also add this menu to the command store reg keys
+        menu.setRegName(parseRegName(menu));
         RegKey regKey = new RegKey(HKLM_COMMAND_STORE_SHELL_PATH + menu.getRegName());
         hkeyLocalMachineExplorerCommandStoreShells.add(regKey);
 
@@ -117,6 +147,7 @@ public class MenuRegSpec extends AbstractRegSpec {
         // this command has a parent menu, so it's not a root command.
         // add this menu to the list of subcommands
         // also add this menu to the command store reg keys
+        command.setRegName(CommandRegSpec.parseRegName(command, projectContext));
         RegKey regKey = new RegKey(HKLM_COMMAND_STORE_SHELL_PATH + command.getRegName());
         hkeyLocalMachineExplorerCommandStoreShells.add(regKey);
 
@@ -132,6 +163,12 @@ public class MenuRegSpec extends AbstractRegSpec {
 
         // set the command text
         regKey.addRegValue(new RegValue("MUIVerb", REG_SZ, command.getText()));
+
+        if (command.getGroup() != null) {
+            if (command.getGroup().isLastInGroup(command)) {
+                regKey.addRegValue(new RegValue("CommandFlags", REG_DWORD, "dword:00000040"));
+            }
+        }
 
         // add this to the parent subcommands list so that the parent can
         // properly reference this command in its SubCommands reg value.
@@ -160,5 +197,4 @@ public class MenuRegSpec extends AbstractRegSpec {
         String strSubCommands = String.join(";", strListSubCommands);
         return new RegValue("SubCommands", REG_SZ, strSubCommands);
     }
-
 }

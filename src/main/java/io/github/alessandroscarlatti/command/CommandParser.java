@@ -32,11 +32,10 @@ public class CommandParser {
 
         commandConfig = parseCommandConfig();
 
-        Command command = new Command(projectContext);
+        Command command = new Command(commandConfig, projectContext);
         command.setBat(parseCommandBat());
         command.setIcon(parseCommandIcon());
         command.setText(parseCommandText());
-        command.setRegName(parseRegName());
         return command;
     }
 
@@ -88,20 +87,6 @@ public class CommandParser {
             return new Icon(iconFile);  // use icon found in the directory
         else
             return null;  // use no icon
-    }
-
-    private String parseRegName() {
-        // create a reg name of the form {menu.reg.id}.{condensed menu text name + unique id}
-        StringBuilder sb = new StringBuilder(commandConfig.getRegUid());
-        Menu parentMenu = this.parentMenu;
-        while (parentMenu != null) {
-            sb.insert(0, ".");
-            sb.insert(0, parentMenu.getMenuConfig().getRegUid());
-            parentMenu = parentMenu.getParent();
-        }
-        sb.insert(0, ".");
-        sb.insert(0, projectContext.getProjectConfig().getRegId());
-        return sb.toString();
     }
 
     private String buildDefaultRegUid() {

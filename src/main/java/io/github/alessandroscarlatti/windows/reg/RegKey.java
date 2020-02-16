@@ -100,9 +100,18 @@ public class RegKey {
             else
                 name = "\"" + regValue.getName() + "\"";
 
-            String setter = "{name}=\"{value}\""
-                .replace("{name}", name)
-                .replace("{value}", escapeData(regValue.getData()));
+            String setter = "{name}={value}"
+                .replace("{name}", name);
+
+            switch (regValue.getRegType()) {
+                case REG_DWORD:
+                    setter = setter.replace("{value}", regValue.getData());
+                    break;
+                case REG_SZ:
+                    setter = setter.replace("{value}", "\"" + escapeData(regValue.getData()) + "\"");
+                    break;
+            }
+
 
             sb.append(setter);
             sb.append("\n");
