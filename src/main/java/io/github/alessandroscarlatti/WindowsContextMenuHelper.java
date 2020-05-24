@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -83,17 +84,30 @@ public class WindowsContextMenuHelper {
         try {
             // make sure to use absolute path to bat
             bat = bat.toAbsolutePath();
-            log.info("Executing " + bat);
+            CommandLine cmdLine = new CommandLine(getCmdPath());
+            cmdLine.addArgument("/c");
+            cmdLine.addArgument(bat.getFileName().toString());
 
-            CommandLine cmdLine = new CommandLine(bat.toString());
+            log.info("Executing " + cmdLine);
+
             DefaultExecutor executor = new DefaultExecutor();
+            executor.setWorkingDirectory(bat.getParent().toFile());
             executor.setExitValue(0);
-//            ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
-//            executor.setWatchdog(watchdog);
             executor.execute(cmdLine);
             log.info("Finished executing " + bat);
         } catch (Exception e) {
             throw new RuntimeException("Error executing bat " + bat, e);
+        }
+    }
+
+    private static String getCmdPath() {
+        Path sysnativeCmd = Paths.get(System.getenv("windir") + "\\sysnative\\cmd.exe");
+        if (Files.exists(sysnativeCmd)) {
+            // this process must be 32-bit, so get access to the native system cmd
+            return sysnativeCmd.toString();
+        } else {
+            // this process must be 64-bit, so cannot use sysnative
+            return "cmd";
         }
     }
 }
