@@ -88,7 +88,7 @@ public class WindowsContextMenuHelper {
             cmdLine.addArgument("/c");
             cmdLine.addArgument(bat.getFileName().toString());
 
-            log.info("Executing " + cmdLine);
+            log.info("Executing " + cmdLine + " in " + bat.getParent());
 
             DefaultExecutor executor = new DefaultExecutor();
             executor.setWorkingDirectory(bat.getParent().toFile());
