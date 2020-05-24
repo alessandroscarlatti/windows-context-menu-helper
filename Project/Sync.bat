@@ -13,7 +13,8 @@ call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 
 :SYNC
-java -Dcmh.project.task="sync" -Dcmh.project.dir="%~dp0." -jar ContextMenuHelper.jar
+java -Dcmh.project.task="generate" -Dcmh.project.dir="%~dp0." -jar ContextMenuHelper.jar
+call Sync/Sync_Last/InstallAll.bat
 call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 

@@ -7,6 +7,7 @@ import io.github.alessandroscarlatti.windows.reg.RegExportUtil;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,9 +88,10 @@ public class WindowsContextMenuHelper {
             CommandLine cmdLine = new CommandLine(bat.toString());
             DefaultExecutor executor = new DefaultExecutor();
             executor.setExitValue(0);
-            ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
-            executor.setWatchdog(watchdog);
+//            ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
+//            executor.setWatchdog(watchdog);
             executor.execute(cmdLine);
+            log.info("Finished executing " + bat);
         } catch (Exception e) {
             throw new RuntimeException("Error executing bat " + bat, e);
         }

@@ -13,7 +13,8 @@ call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 
 :RESTORE
-reg import %~dp0Restore.reg
+reg import "%~dp0Restore.reg"
+if not "%DEBUG%"=="" pause
 call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 

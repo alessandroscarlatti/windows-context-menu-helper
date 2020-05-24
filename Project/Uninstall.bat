@@ -13,7 +13,8 @@ call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 
 :UNINSTALL
-java -Dcmh.project.task="uninstall" -Dcmh.project.dir="%~dp0." -jar ContextMenuHelper.jar
+java -Dcmh.project.task="generate" -Dcmh.project.dir="%~dp0." -jar ContextMenuHelper.jar
+call Sync/Sync_Last/UninstallAll.bat
 call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 
