@@ -41,16 +41,22 @@ public class WindowsContextMenuHelper {
             Project project = projectParser.parseProject();
 
             // build the reg specs.
-            // This actually builds a Sync_ dir with bats
             project.buildRegSpecs();
 
             // run the correct bat based on the specified task
             if (strTask.equals("sync")) {
+                // This actually builds a Sync_ dir with bats
                 project.executeSync();
             }
 
             if (strTask.equals("uninstall")) {
+                // This actually builds an Uninstall dir with bats
                 project.executeUninstall();
+            }
+
+            if (strTask.equals("generate")) {
+                // This actually builds a Sync_ dir with bats
+                project.executeGenerate();
             }
         } catch (Exception e) {
             log.error("Error running task.", e);
