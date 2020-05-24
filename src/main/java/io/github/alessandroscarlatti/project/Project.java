@@ -134,6 +134,11 @@ public class Project {
         executeBat(syncDir.resolve("Uninstall.bat"));
     }
 
+    public void executeGenerate() {
+        // export the reg specs, but don't actually execute the sync
+        exportRegSpecs("Sync_");
+    }
+
     public static String fileTimestamp() {
         return DateTimeFormatter.ofPattern("YYYY-MM-dd_HH-mm-ss.SSS").format(LocalDateTime.now());
     }
