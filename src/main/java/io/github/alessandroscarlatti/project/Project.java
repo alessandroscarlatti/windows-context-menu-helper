@@ -64,21 +64,21 @@ public class Project {
                     log.info("INSTALL SCRIPT:");
                     log.info(installScript);
                     Files.write(itemSyncDir.resolve("Install.reg"), installScript.getBytes());
-                    installBats.append("regedit /s \"" + strItemsSyncDir + "\\Install.reg\" & %CHECK_ERROR%\n");
+                    installBats.append("reg import \"" + strItemsSyncDir + "\\Install.reg\" & %CHECK_ERROR%\n");
 
                     // create the uninstall script
                     String uninstallScript = contextMenuItem.getRegSpec().writeUninstallRegScript();
                     log.info("UNINSTALL SCRIPT:");
                     log.info(uninstallScript);
                     Files.write(itemSyncDir.resolve("Uninstall.reg"), uninstallScript.getBytes());
-                    uninstallBats.append("regedit /s \"" + strItemsSyncDir + "\\Uninstall.reg\" & %CHECK_ERROR%\n");
+                    uninstallBats.append("reg import \"" + strItemsSyncDir + "\\Uninstall.reg\" & %CHECK_ERROR%\n");
 
                     // create the restore script
                     String restoreScript = contextMenuItem.getRegSpec().writeRestorePointRegScript();
                     log.info("RESTORE SCRIPT:");
                     log.info(restoreScript);
                     Files.write(itemSyncDir.resolve("Restore.reg"), restoreScript.getBytes());
-                    restoreBats.append("regedit /s \"" + strItemsSyncDir + "\\Restore.reg\" & %CHECK_ERROR%\n");
+                    restoreBats.append("reg import \"" + strItemsSyncDir + "\\Restore.reg\" & %CHECK_ERROR%\n");
                 }
             }
 
