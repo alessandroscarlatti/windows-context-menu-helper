@@ -51,6 +51,8 @@ jar {
 }
 
 task buildDist {
+    group = "distribution"
+    description = "Build the distribution .zip file"
     doLast {
         // assemble the example dist
         // start from an empty dist dir
