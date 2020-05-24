@@ -10,11 +10,11 @@ if "%1"=="/sync" goto :SYNC
 pushd "%~dp0"
 powershell -command "Start-Process cmd -ArgumentList @('/c', 'pushd', '%~dp0', '&&', 'cmd', '/c', '%~dp0%~nx0', '/sync') -Wait -verb runas; exit $lastExitCode"
 call :CHECK_ERROR %ERRORLEVEL%
+popd
 exit /b %ERRORLEVEL%
 
 :SYNC
-java -Dcmh.project.task="generate" -Dcmh.project.dir="%~dp0." -jar ContextMenuHelper.jar
-call Sync/Sync_Last/InstallAll.bat
+java -Dcmh.project.task="sync" -Dcmh.project.dir="%~dp0." -jar ContextMenuHelper.jar
 call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 

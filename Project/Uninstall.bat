@@ -10,11 +10,11 @@ if "%1"=="/uninstall" goto :UNINSTALL
 pushd "%~dp0"
 powershell "Start-Process cmd -ArgumentList @('/c', 'pushd', '%~dp0', '&&', 'cmd', '/c', '%~dp0%~nx0', '/uninstall') -Wait -verb runas"
 call :CHECK_ERROR %ERRORLEVEL%
+popd
 exit /b %ERRORLEVEL%
 
 :UNINSTALL
-java -Dcmh.project.task="generate" -Dcmh.project.dir="%~dp0." -jar ContextMenuHelper.jar
-call Sync/Sync_Last/UninstallAll.bat
+java -Dcmh.project.task="uninstall" -Dcmh.project.dir="%~dp0." -jar ContextMenuHelper.jar
 call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 
