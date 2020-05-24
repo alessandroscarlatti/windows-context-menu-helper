@@ -13,7 +13,7 @@ call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 
 :UNINSTALL
-regedit /s %~dp0Uninstall.reg
+reg import %~dp0Uninstall.reg
 call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 

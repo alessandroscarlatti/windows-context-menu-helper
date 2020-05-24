@@ -13,7 +13,7 @@ call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 
 :RESTORE
-regedit /s %~dp0Restore.reg
+reg import %~dp0Restore.reg
 call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 

@@ -121,7 +121,7 @@ public class Project {
         Path syncDir = exportRegSpecs("Sync_");
 
         // execute the Uninstall bat
-        executeBat(syncDir.resolve("Uninstall.bat"));
+        executeBat(syncDir.resolve("UninstallAll.bat"));
 
         // execute the Install bat
         executeBat(syncDir.resolve("InstallAll.bat"));
@@ -131,7 +131,7 @@ public class Project {
         Path syncDir = exportRegSpecs("Uninstall_");
 
         // execute the Uninstall bat
-        executeBat(syncDir.resolve("Uninstall.bat"));
+        executeBat(syncDir.resolve("UninstallAll.bat"));
     }
 
     public void executeGenerate() {
