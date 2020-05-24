@@ -14,6 +14,7 @@ exit /b %ERRORLEVEL%
 
 :UNINSTALL
 ${UNINSTALL_BATS}
+if not "%DEBUG%"=="" pause
 call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 

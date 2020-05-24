@@ -13,7 +13,8 @@ call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 
 :UNINSTALL
-reg import %~dp0Uninstall.reg
+reg import "%~dp0Uninstall.reg"
+if not "%DEBUG%"=="" pause
 call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 
