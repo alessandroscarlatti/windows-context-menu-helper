@@ -10,6 +10,7 @@ if "%1"=="/uninstall" goto :UNINSTALL
 pushd "%~dp0"
 powershell "Start-Process cmd -ArgumentList @('/c', 'pushd', '%~dp0', '&&', 'cmd', '/c', '%~dp0%~nx0', '/uninstall') -Wait -verb runas"
 call :CHECK_ERROR %ERRORLEVEL%
+popd
 exit /b %ERRORLEVEL%
 
 :UNINSTALL

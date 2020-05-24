@@ -45,18 +45,18 @@ jar {
     }
     manifest {
         attributes([
-                "Main-Class" : "io.github.alessandroscarlatti.WindowsContextMenuHelper"
+                "Main-Class": "io.github.alessandroscarlatti.WindowsContextMenuHelper"
         ])
     }
 }
 
-task buildDist {
+task buildDistDir {
     group = "distribution"
     description = "Build the distribution .zip file"
     doLast {
         // assemble the example dist
         // start from an empty dist dir
-        def projectBaseDir =file("MenuProjectBase")
+        def projectBaseDir = file("MenuProjectBase")
         mkdir(projectBaseDir)
 
         copy {
@@ -67,5 +67,16 @@ task buildDist {
     }
 }
 
+task buildDistZip(type: Zip) {
+    group = "distribution"
+    description = "Build the distribution .zip file"
+    dependsOn buildDistDir
+    // assemble the example dist zip
+    from file("MenuProjectBase")
+    into "MenuProjectBase"
+    archiveName = "ContextMenuHelper.zip"
+    destinationDir = file("build/distributions")
+}
+
 // build the dist after building the jar
-build.finalizedBy(buildDist)
+build.finalizedBy(buildDistZip)

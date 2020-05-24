@@ -42,10 +42,8 @@ public class Project {
         }
     }
 
-    public Path exportRegSpecs(String prefix) {
+    public void exportRegSpecs(Path syncDir) {
         try {
-            Path syncDir = context.getSyncDir().resolve(prefix + fileTimestamp());
-
             // build the install, uninstall, and restore bats
             StringBuilder installBats = new StringBuilder();
             StringBuilder uninstallBats = new StringBuilder();
@@ -109,8 +107,6 @@ public class Project {
             // now write the bats
             Files.write(syncDir.resolve("Uninstall.bat"), resourceStr("/io/github/alessandroscarlatti/Uninstall.template.bat").getBytes());
             Files.write(syncDir.resolve("Restore.bat"), resourceStr("/io/github/alessandroscarlatti/Restore.template.bat").getBytes());
-
-            return syncDir;
         } catch (Exception e) {
             throw new RuntimeException("Error exporting reg specs.", e);
         }
@@ -118,25 +114,30 @@ public class Project {
 
     public void executeSync() {
         // run the sync task
-        Path syncDir = exportRegSpecs("Sync_");
+        Path syncDir = context.getSyncDir().resolve("Sync_" + fileTimestamp());
+        exportRegSpecs(syncDir);
+        exportRegSpecs(context.getSyncDir().resolve("Sync_Last"));
 
         // execute the Uninstall bat
-        executeBat(syncDir.resolve("Uninstall.bat"));
+        executeBat(syncDir.resolve("UninstallAll.bat"));
 
         // execute the Install bat
         executeBat(syncDir.resolve("InstallAll.bat"));
     }
 
     public void executeUninstall() {
-        Path syncDir = exportRegSpecs("Uninstall_");
+        Path syncDir = context.getSyncDir().resolve("Uninstall_" + fileTimestamp());
+        exportRegSpecs(syncDir);
 
         // execute the Uninstall bat
-        executeBat(syncDir.resolve("Uninstall.bat"));
+        executeBat(syncDir.resolve("UninstallAll.bat"));
     }
 
     public void executeGenerate() {
         // export the reg specs, but don't actually execute the sync
-        exportRegSpecs("Sync_");
+        Path syncDir = context.getSyncDir().resolve("Sync_" + fileTimestamp());
+        exportRegSpecs(syncDir);
+        exportRegSpecs(context.getSyncDir().resolve("Sync_Last"));
     }
 
     public static String fileTimestamp() {
