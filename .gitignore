@@ -6,4 +6,5 @@ sandbox/
 dist/
 *.jar
 MenuProjectBase/
+MenuProjectExample/
 *.zip

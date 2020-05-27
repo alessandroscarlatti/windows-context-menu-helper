@@ -56,8 +56,10 @@ task buildDistDir {
     doLast {
         // assemble the example dist
         // start from an empty dist dir
-        def projectBaseDir = file("MenuProjectBase")
+        def projectBaseDir = file("MenuProjectExample")
         mkdir(projectBaseDir)
+
+        GFileUtils.cleanDirectory(projectBaseDir)
 
         copy {
             from file("Project")
@@ -74,7 +76,7 @@ task buildDistZip(type: Zip) {
     // assemble the example dist zip
     from file("MenuProjectBase")
     into "MenuProjectBase"
-    archiveName = "ContextMenuHelper.zip"
+    archiveName = "MenuProjectExample.zip"
     destinationDir = file("build/distributions")
 }
 
