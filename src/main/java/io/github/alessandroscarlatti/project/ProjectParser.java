@@ -164,7 +164,10 @@ public class ProjectParser {
         try {
             List<Path> menuDirs = new ArrayList<>();
             for (Path dir : Files.list(baseDir).collect(toList())) {
-                if (Files.isDirectory(dir) && dir.getFileName().toString().contains("Menu_")) {
+                // _ is a "commented out" folder
+                if (Files.isDirectory(dir) &&
+                    dir.getFileName().toString().contains("Menu_") &&
+                    !dir.getFileName().toString().startsWith("_")) {
                     log.info("Found menu dir " + dir);
                     menuDirs.add(dir);
                 }
@@ -180,7 +183,10 @@ public class ProjectParser {
         try {
             List<Path> commandDirs = new ArrayList<>();
             for (Path dir : Files.list(baseDir).collect(toList())) {
-                if (Files.isDirectory(dir) && dir.getFileName().toString().contains("Command_")) {
+                // _ is a "commented out" folder
+                if (Files.isDirectory(dir) &&
+                    dir.getFileName().toString().contains("Command_") &&
+                    !dir.getFileName().toString().startsWith("_")) {
                     log.info("Found command dir " + dir);
                     commandDirs.add(dir);
                 }
@@ -196,7 +202,10 @@ public class ProjectParser {
         try {
             List<Path> groupDirs = new ArrayList<>();
             for (Path dir : Files.list(baseDir).collect(toList())) {
-                if (Files.isDirectory(dir) && dir.getFileName().toString().contains("Group_")) {
+                // _ is a "commented out" folder
+                if (Files.isDirectory(dir) &&
+                    dir.getFileName().toString().contains("Group_") &&
+                    !dir.getFileName().toString().startsWith("_")) {
                     log.info("Found group dir " + dir);
                     groupDirs.add(dir);
                 }

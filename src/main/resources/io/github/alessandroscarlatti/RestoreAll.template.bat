@@ -14,6 +14,7 @@ exit /b %ERRORLEVEL%
 
 :RESTORE
 ${RESTORE_BATS}
+if not "%DEBUG%"=="" pause
 call :CHECK_ERROR %ERRORLEVEL%
 exit /b %ERRORLEVEL%
 
