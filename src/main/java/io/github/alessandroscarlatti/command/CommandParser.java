@@ -3,7 +3,7 @@ package io.github.alessandroscarlatti.command;
 import io.github.alessandroscarlatti.menu.Menu;
 import io.github.alessandroscarlatti.project.ProjectContext;
 import io.github.alessandroscarlatti.project.ProjectParser;
-import io.github.alessandroscarlatti.windows.menu.Icon;
+import io.github.alessandroscarlatti.model.menu.Icon;
 
 import java.nio.file.Path;
 import java.util.Properties;

@@ -1,8 +1,8 @@
 package io.github.alessandroscarlatti.project;
 
 import io.github.alessandroscarlatti.menu.MenuRegSpec;
-import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
-import io.github.alessandroscarlatti.windows.reg.RegKey;
+import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
+import io.github.alessandroscarlatti.model.reg.RegKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

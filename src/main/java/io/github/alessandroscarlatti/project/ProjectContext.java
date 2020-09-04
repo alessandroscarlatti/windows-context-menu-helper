@@ -1,6 +1,6 @@
 package io.github.alessandroscarlatti.project;
 
-import io.github.alessandroscarlatti.windows.reg.RegExportUtil;
+import io.github.alessandroscarlatti.model.reg.RegExportUtil;
 
 import java.nio.file.Path;
 

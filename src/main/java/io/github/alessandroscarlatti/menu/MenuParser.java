@@ -5,8 +5,8 @@ import io.github.alessandroscarlatti.command.CommandParser;
 import io.github.alessandroscarlatti.group.Group;
 import io.github.alessandroscarlatti.group.GroupParser;
 import io.github.alessandroscarlatti.project.ProjectContext;
-import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
-import io.github.alessandroscarlatti.windows.menu.Icon;
+import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
+import io.github.alessandroscarlatti.model.menu.Icon;
 import io.github.alessandroscarlatti.project.ProjectParser;
 
 import java.nio.file.Path;

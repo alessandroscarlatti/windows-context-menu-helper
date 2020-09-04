@@ -1,4 +1,4 @@
-package io.github.alessandroscarlatti.windows.reg;
+package io.github.alessandroscarlatti.model.reg;
 
 import java.io.IOException;
 

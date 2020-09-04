@@ -1,6 +1,6 @@
-package io.github.alessandroscarlatti.windows.menu;
+package io.github.alessandroscarlatti.model.menu;
 
-import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
+import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
 
 /**
  * @author Alessandro Scarlatti

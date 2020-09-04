@@ -3,18 +3,17 @@ package io.github.alessandroscarlatti.menu;
 import io.github.alessandroscarlatti.command.Command;
 import io.github.alessandroscarlatti.command.CommandRegSpec;
 import io.github.alessandroscarlatti.project.ProjectContext;
-import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
-import io.github.alessandroscarlatti.windows.reg.RegKey;
-import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
-import io.github.alessandroscarlatti.windows.reg.RegValue;
+import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
+import io.github.alessandroscarlatti.model.reg.RegKey;
+import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
+import io.github.alessandroscarlatti.model.reg.RegValue;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.github.alessandroscarlatti.windows.reg.RegType.REG_DWORD;
-import static io.github.alessandroscarlatti.windows.reg.RegType.REG_SZ;
+import static io.github.alessandroscarlatti.model.reg.RegType.REG_DWORD;
+import static io.github.alessandroscarlatti.model.reg.RegType.REG_SZ;
 import static java.util.stream.Collectors.toList;
 
 /**

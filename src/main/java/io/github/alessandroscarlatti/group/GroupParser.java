@@ -6,7 +6,7 @@ import io.github.alessandroscarlatti.menu.Menu;
 import io.github.alessandroscarlatti.menu.MenuParser;
 import io.github.alessandroscarlatti.project.ProjectContext;
 import io.github.alessandroscarlatti.project.ProjectParser;
-import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
+import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

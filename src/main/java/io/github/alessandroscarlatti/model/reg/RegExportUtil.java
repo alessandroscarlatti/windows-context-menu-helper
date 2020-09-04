@@ -1,4 +1,4 @@
-package io.github.alessandroscarlatti.windows.reg;
+package io.github.alessandroscarlatti.model.reg;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;

@@ -2,8 +2,8 @@ package io.github.alessandroscarlatti.group;
 
 import io.github.alessandroscarlatti.command.Command;
 import io.github.alessandroscarlatti.menu.Menu;
-import io.github.alessandroscarlatti.windows.menu.ContextMenuItem;
-import io.github.alessandroscarlatti.windows.reg.AbstractRegSpec;
+import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
+import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
 
 import java.util.ArrayList;
 import java.util.List;
