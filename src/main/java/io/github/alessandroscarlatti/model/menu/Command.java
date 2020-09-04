@@ -1,11 +1,8 @@
-package io.github.alessandroscarlatti.command;
+package io.github.alessandroscarlatti.model.menu;
 
-import io.github.alessandroscarlatti.group.Group;
-import io.github.alessandroscarlatti.menu.Menu;
-import io.github.alessandroscarlatti.project.ProjectContext;
-import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
-import io.github.alessandroscarlatti.model.menu.Icon;
+import io.github.alessandroscarlatti.model.reg.CommandRegSpec;
 import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
+import io.github.alessandroscarlatti.project.Project;
 
 import java.nio.file.Path;
 
@@ -21,18 +18,14 @@ public class Command implements ContextMenuItem {
     private String regName;  // the name of the Registry key for this command, eg, SomeTool.SomeCommand
     private Menu parent;
     private Group group;
-    private CommandConfig config;
-
-    private ProjectContext projectContext;
+    private String regUid;
 
     // the reg spec to use for this command
     // only a root level command has a reg spec.
     private AbstractRegSpec regSpec;
 
-    public Command(CommandConfig config, ProjectContext projectContext) {
-        this.config = config;
-        regSpec = new CommandRegSpec(this, projectContext);
-        this.projectContext = projectContext;
+    public Command(Project project) {
+        regSpec = new CommandRegSpec(this, project);
     }
 
     @Override
@@ -104,11 +97,11 @@ public class Command implements ContextMenuItem {
         this.group = group;
     }
 
-    public CommandConfig getConfig() {
-        return config;
+    public String getRegUid() {
+        return regUid;
     }
 
-    public void setConfig(CommandConfig config) {
-        this.config = config;
+    public void setRegUid(String regUid) {
+        this.regUid = regUid;
     }
 }

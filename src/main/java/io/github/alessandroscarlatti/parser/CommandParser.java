@@ -1,15 +1,14 @@
-package io.github.alessandroscarlatti.command;
+package io.github.alessandroscarlatti.parser;
 
-import io.github.alessandroscarlatti.menu.Menu;
-import io.github.alessandroscarlatti.project.ProjectContext;
-import io.github.alessandroscarlatti.project.ProjectParser;
+import io.github.alessandroscarlatti.model.menu.Command;
 import io.github.alessandroscarlatti.model.menu.Icon;
+import io.github.alessandroscarlatti.model.menu.Menu;
+import io.github.alessandroscarlatti.project.Project;
 
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static io.github.alessandroscarlatti.command.CommandConfig.PROP_REG_UID;
-import static io.github.alessandroscarlatti.project.ProjectParser.overlayProperties;
+import static io.github.alessandroscarlatti.parser.ProjectParser.overlayProperties;
 
 /**
  * @author Alessandro Scarlatti
@@ -18,37 +17,32 @@ import static io.github.alessandroscarlatti.project.ProjectParser.overlayPropert
 public class CommandParser {
 
     private Path commandDir;  // the dir containing this command
-    private CommandConfig commandConfig;  // the config from command.properties
     private Menu parentMenu; // the parent menu, may be null if no parent
-    private ProjectContext projectContext;
+    private Project project;
 
-    public CommandParser(Path commandDir, ProjectContext projectContext, Menu parentMenu) {
+    private static final String PROP_REG_UID = "command.reg.id";
+
+
+    public CommandParser(Path commandDir, Project project, Menu parentMenu) {
         this.commandDir = commandDir;
-        this.projectContext = projectContext;
+        this.project = project;
         this.parentMenu = parentMenu;
     }
 
     public Command parseCommand() {
+        Command command = new Command(project);
 
-        commandConfig = parseCommandConfig();
-
-        Command command = new Command(commandConfig, projectContext);
-        command.setBat(parseCommandBat());
-        command.setIcon(parseCommandIcon());
-        command.setText(parseCommandText());
-        return command;
-    }
-
-    private CommandConfig parseCommandConfig() {
         // combine properties
         Properties commandProperties = overlayProperties(new Properties[]{
             defaultCommandProperties(), // hardcoded defaults
             userCommandProperties()     // overlay any user-provided properties
         });
 
-        CommandConfig commandConfig = CommandConfig.fromProperties(commandProperties);
-
-        return commandConfig;
+        command.setRegUid(commandProperties.getProperty(PROP_REG_UID));
+        command.setBat(parseCommandBat());
+        command.setIcon(parseCommandIcon());
+        command.setText(parseCommandText());
+        return command;
     }
 
     private Properties defaultCommandProperties() {

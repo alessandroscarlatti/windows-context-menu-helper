@@ -1,11 +1,8 @@
-package io.github.alessandroscarlatti.menu;
+package io.github.alessandroscarlatti.model.menu;
 
-import io.github.alessandroscarlatti.command.Command;
-import io.github.alessandroscarlatti.group.Group;
-import io.github.alessandroscarlatti.project.ProjectContext;
-import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
-import io.github.alessandroscarlatti.model.menu.Icon;
+import io.github.alessandroscarlatti.model.reg.MenuRegSpec;
 import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
+import io.github.alessandroscarlatti.project.Project;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,18 +18,18 @@ public class Menu implements ContextMenuItem {
     private Icon icon;  // the icon displayed for this menu
     private String text;  // the text displayed for this menu
     private String regName;  // the name of the Registry key for this menu, eg, SomeTool.SomeMenu
-    private ProjectContext projectContext;
-    private MenuConfig menuConfig;
+//    private MenuConfig menuConfig;
     private Group group;
+    private String regUid;  // the unique prefix for all registry items in this menu, eg, "SomeTool", where would be used eg, "SomeTool.SomeMenu"
+    private boolean targetDesktopEnabled;
+    private boolean targetDirectoryEnabled;
 
     // the reg spec to use for this context menu.
     // only a root level menu has a reg spec.
     private AbstractRegSpec regSpec;
 
-    public Menu(MenuConfig menuConfig, ProjectContext projectContext) {
-        this.menuConfig = menuConfig;
-        this.projectContext = projectContext;
-        regSpec = new MenuRegSpec(this, projectContext);
+    public Menu(Project project) {
+        regSpec = new MenuRegSpec(this, project);
     }
 
     public static void connectParentToChild(Menu parent, ContextMenuItem child) {
@@ -115,19 +112,35 @@ public class Menu implements ContextMenuItem {
         this.regSpec = regSpec;
     }
 
-    public MenuConfig getMenuConfig() {
-        return menuConfig;
-    }
-
-    public void setMenuConfig(MenuConfig menuConfig) {
-        this.menuConfig = menuConfig;
-    }
-
     public Group getGroup() {
         return group;
     }
 
     public void setGroup(Group group) {
         this.group = group;
+    }
+
+    public String getRegUid() {
+        return regUid;
+    }
+
+    public void setRegUid(String regUid) {
+        this.regUid = regUid;
+    }
+
+    public boolean getTargetDesktopEnabled() {
+        return targetDesktopEnabled;
+    }
+
+    public void setTargetDesktopEnabled(boolean targetDesktopEnabled) {
+        this.targetDesktopEnabled = targetDesktopEnabled;
+    }
+
+    public boolean getTargetDirectoryEnabled() {
+        return targetDirectoryEnabled;
+    }
+
+    public void setTargetDirectoryEnabled(boolean targetDirectoryEnabled) {
+        this.targetDirectoryEnabled = targetDirectoryEnabled;
     }
 }

@@ -1,20 +1,14 @@
 package io.github.alessandroscarlatti;
 
+import io.github.alessandroscarlatti.parser.ProjectParser;
 import io.github.alessandroscarlatti.project.Project;
-import io.github.alessandroscarlatti.project.ProjectContext;
-import io.github.alessandroscarlatti.project.ProjectParser;
-import io.github.alessandroscarlatti.model.reg.RegExportUtil;
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
+
+import static io.github.alessandroscarlatti.util.ProjectUtils.reqProperty;
 
 /**
  * @author Alessandro Scarlatti
@@ -30,14 +24,15 @@ public class WindowsContextMenuHelper {
             Path projectDir = Paths.get(reqProperty("cmh.project.dir")).toAbsolutePath().normalize();
 
             // set up the project context
-            ProjectContext context = new ProjectContext();
-            context.setProjectDir(projectDir);
-            context.setRegExportUtil(new RegExportUtil(projectDir));
-            context.setSyncDir(projectDir.resolve("Sync"));
+//            ProjectContext context = new ProjectContext();
+//            context.setProjectDir(projectDir);  // handled now in the project parser
+//            context.setRegExportUtil(new RegExportUtil(projectDir));  // handled now in the project parser
+//            context.setSyncDir(projectDir.resolve("Sync"));  // handled now in the project parser
 
             // parse the project
             log.info("Parsing project in dir " + projectDir);
-            ProjectParser projectParser = new ProjectParser(context);
+            ProjectParser projectParser = new ProjectParser(projectDir);
+
             Project project = projectParser.parseProject();
 
             // build the reg specs.
@@ -61,51 +56,6 @@ public class WindowsContextMenuHelper {
         } catch (Exception e) {
             log.error("Error running task.", e);
             throw e;
-        }
-    }
-
-    public static String resourceStr(String path) {
-        try {
-            return IOUtils.resourceToString(path, Charset.forName("utf-8"));
-        } catch (Exception e) {
-            throw new RuntimeException("Error reading resource at path " + path, e);
-        }
-    }
-
-    public static String reqProperty(String property) {
-        String prop = System.getProperty(property);
-        Objects.requireNonNull(prop, "Missing required property " + property);
-        return prop;
-    }
-
-    public static void executeBat(Path bat) {
-        try {
-            // make sure to use absolute path to bat
-            bat = bat.toAbsolutePath();
-            CommandLine cmdLine = new CommandLine(getCmdPath());
-            cmdLine.addArgument("/c");
-            cmdLine.addArgument(bat.getFileName().toString());
-
-            log.info("Executing " + cmdLine + " in " + bat.getParent());
-
-            DefaultExecutor executor = new DefaultExecutor();
-            executor.setWorkingDirectory(bat.getParent().toFile());
-            executor.setExitValue(0);
-            executor.execute(cmdLine);
-            log.info("Finished executing " + bat);
-        } catch (Exception e) {
-            throw new RuntimeException("Error executing bat " + bat, e);
-        }
-    }
-
-    private static String getCmdPath() {
-        Path sysnativeCmd = Paths.get(System.getenv("windir") + "\\sysnative\\cmd.exe");
-        if (Files.exists(sysnativeCmd)) {
-            // this process must be 32-bit, so get access to the native system cmd
-            return sysnativeCmd.toString();
-        } else {
-            // this process must be 64-bit, so cannot use sysnative
-            return "cmd";
         }
     }
 }

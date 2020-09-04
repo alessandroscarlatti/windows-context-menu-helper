@@ -1,12 +1,10 @@
-package io.github.alessandroscarlatti.group;
+package io.github.alessandroscarlatti.parser;
 
-import io.github.alessandroscarlatti.command.Command;
-import io.github.alessandroscarlatti.command.CommandParser;
-import io.github.alessandroscarlatti.menu.Menu;
-import io.github.alessandroscarlatti.menu.MenuParser;
-import io.github.alessandroscarlatti.project.ProjectContext;
-import io.github.alessandroscarlatti.project.ProjectParser;
+import io.github.alessandroscarlatti.model.menu.Command;
 import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
+import io.github.alessandroscarlatti.model.menu.Group;
+import io.github.alessandroscarlatti.model.menu.Menu;
+import io.github.alessandroscarlatti.project.Project;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -19,12 +17,12 @@ import java.util.List;
 public class GroupParser {
 
     private Path groupDir;
-    private ProjectContext projectContext;
+    private Project project;
     private Menu parentMenu;
 
-    public GroupParser(Path groupDir, ProjectContext projectContext, Menu parentMenu) {
+    public GroupParser(Path groupDir, Project project, Menu parentMenu) {
         this.groupDir = groupDir;
-        this.projectContext = projectContext;
+        this.project = project;
         this.parentMenu = parentMenu;
     }
 
@@ -38,12 +36,12 @@ public class GroupParser {
         List<ContextMenuItem> contextMenuItems = new ArrayList<>();
 
         for (Path menuDir : menuDirs) {
-            Menu subMenu = new MenuParser(menuDir, projectContext, parentMenu).parseMenu();
+            Menu subMenu = new MenuParser(menuDir, project, parentMenu).parseMenu();
             contextMenuItems.add(subMenu);
         }
 
         for (Path commandDir : commandDirs) {
-            Command command = new CommandParser(commandDir, projectContext, parentMenu).parseCommand();
+            Command command = new CommandParser(commandDir, project, parentMenu).parseCommand();
             contextMenuItems.add(command);
         }
 

@@ -1,12 +1,9 @@
-package io.github.alessandroscarlatti.menu;
+package io.github.alessandroscarlatti.model.reg;
 
-import io.github.alessandroscarlatti.command.Command;
-import io.github.alessandroscarlatti.command.CommandRegSpec;
-import io.github.alessandroscarlatti.project.ProjectContext;
+import io.github.alessandroscarlatti.model.menu.Command;
 import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
-import io.github.alessandroscarlatti.model.reg.RegKey;
-import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
-import io.github.alessandroscarlatti.model.reg.RegValue;
+import io.github.alessandroscarlatti.model.menu.Menu;
+import io.github.alessandroscarlatti.project.Project;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,14 +29,14 @@ public class MenuRegSpec extends AbstractRegSpec {
     private List<RegKey> hkeyLocalMachineExplorerCommandStoreShells = new ArrayList<>();
 
     // the context for the project
-    private ProjectContext projectContext;
+    private Project project;
 
     private static final String HKCR_DIR_SHELL_PATH = "HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\";
     private static final String HKLM_COMMAND_STORE_SHELL_PATH = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CommandStore\\shell\\";
 
-    public MenuRegSpec(Menu rootMenu, ProjectContext projectContext) {
+    public MenuRegSpec(Menu rootMenu, Project project) {
         this.rootMenu = rootMenu;
-        this.projectContext = projectContext;
+        this.project = project;
     }
 
     @Override
@@ -53,17 +50,17 @@ public class MenuRegSpec extends AbstractRegSpec {
         addMenuDetails(rootMenu, regKey);
 
         // now build the install .reg file
-        String regInstall = projectContext.getRegExportUtil().installToString(getAllSpecRegKeys());
+        String regInstall = project.getRegExportUtil().installToString(getAllSpecRegKeys());
         setRegInstall(regInstall);
 
         // now build the uninstall .reg file
-        String regUninstall = projectContext.getRegExportUtil().uninstallToString(getAllSpecRegKeys());
+        String regUninstall = project.getRegExportUtil().uninstallToString(getAllSpecRegKeys());
         setRegUninstall(regUninstall);
     }
 
     private String parseRegName(Menu menu) {
         // create a reg name of the form {menu.reg.id}.{condensed menu text name + unique id}
-        StringBuilder sb = new StringBuilder(menu.getMenuConfig().getRegUid());
+        StringBuilder sb = new StringBuilder(menu.getRegUid());
 
         if (menu.getGroup() != null) {
             sb.insert(0, ".");
@@ -73,11 +70,11 @@ public class MenuRegSpec extends AbstractRegSpec {
         Menu parentMenu = menu.getParent();
         while (parentMenu != null) {
             sb.insert(0, ".");
-            sb.insert(0, parentMenu.getMenuConfig().getRegUid());
+            sb.insert(0, parentMenu.getRegUid());
             parentMenu = parentMenu.getParent();
         }
         sb.insert(0, ".");
-        sb.insert(0, projectContext.getProjectConfig().getRegId());
+        sb.insert(0, project.getRegId());
         return sb.toString();
     }
 
@@ -102,7 +99,7 @@ public class MenuRegSpec extends AbstractRegSpec {
 
     public List<RegKey> getAllRegKeysByPrefix(String prefix) {
         // get all the reg keys that would be part of the project
-        return projectContext.getRegExportUtil().getChildKeysByPrefix(Arrays.asList(
+        return project.getRegExportUtil().getChildKeysByPrefix(Arrays.asList(
             new RegKey(HKCR_DIR_SHELL_PATH),
             new RegKey(HKLM_COMMAND_STORE_SHELL_PATH)
         ), prefix);
@@ -120,7 +117,7 @@ public class MenuRegSpec extends AbstractRegSpec {
 
     @Override
     public String writeRestorePointRegScript() {
-        return projectContext.getRegExportUtil().exportToString(getAllSpecRegKeys());
+        return project.getRegExportUtil().exportToString(getAllSpecRegKeys());
     }
 
     private List<RegKey> getAllSpecRegKeys() {
@@ -146,7 +143,7 @@ public class MenuRegSpec extends AbstractRegSpec {
         // this command has a parent menu, so it's not a root command.
         // add this menu to the list of subcommands
         // also add this menu to the command store reg keys
-        command.setRegName(CommandRegSpec.parseRegName(command, projectContext));
+        command.setRegName(CommandRegSpec.parseRegName(command, project));
         RegKey regKey = new RegKey(HKLM_COMMAND_STORE_SHELL_PATH + command.getRegName());
         hkeyLocalMachineExplorerCommandStoreShells.add(regKey);
 

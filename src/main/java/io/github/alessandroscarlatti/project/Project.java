@@ -1,8 +1,9 @@
 package io.github.alessandroscarlatti.project;
 
-import io.github.alessandroscarlatti.menu.MenuRegSpec;
+import io.github.alessandroscarlatti.model.reg.MenuRegSpec;
 import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.model.reg.RegKey;
+import io.github.alessandroscarlatti.util.RegExportUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +13,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static io.github.alessandroscarlatti.WindowsContextMenuHelper.executeBat;
-import static io.github.alessandroscarlatti.WindowsContextMenuHelper.resourceStr;
+import static io.github.alessandroscarlatti.util.ProjectUtils.executeBat;
+import static io.github.alessandroscarlatti.util.ProjectUtils.resourceStr;
 
 /**
  * @author Alessandro Scarlatti
@@ -26,11 +27,22 @@ public class Project {
     // these are the context menu items parsed from the project dir
     private List<ContextMenuItem> contextMenuItems;
 
-    private ProjectContext context;
+    private Path projectDir;
+    private Path syncDir;
+    private RegExportUtil regExportUtil;
 
-    public Project(ProjectContext context, List<ContextMenuItem> contextMenuItems) {
+    // any settings configured by the user
+    private String regId;  // the reg id for this project. All items will have this prefix. eg, MyProject.
+    private String oldRegId; // the reg id that this project used to have. Only applicable for auto-generated ids.
+    private boolean autoGenerateRegId;  // whether or not to auto-generate the project id.
+    private String projectName;  // the base name of the project. By default should be the name of the directory containing the project.
+
+
+    public Project() {
+    }
+
+    public Project(List<ContextMenuItem> contextMenuItems) {
         this.contextMenuItems = contextMenuItems;
-        this.context = context;
     }
 
     // this class will contain methods for syncing, installing, uninstalling, reverting, etc.
@@ -95,13 +107,13 @@ public class Project {
             Files.write(syncDir.resolve("RestoreAll.bat"), restoreBat.getBytes());
 
             // now build the uninstall.reg
-            MenuRegSpec menuRegSpec = new MenuRegSpec(null, context);
-            List<RegKey> regKeysToRemove = menuRegSpec.getAllRegKeysByPrefix(context.getProjectConfig().getRegId());
-            String regUninstall = context.getRegExportUtil().uninstallToString(regKeysToRemove);
+            MenuRegSpec menuRegSpec = new MenuRegSpec(null, this);
+            List<RegKey> regKeysToRemove = menuRegSpec.getAllRegKeysByPrefix(getRegId());
+            String regUninstall = getRegExportUtil().uninstallToString(regKeysToRemove);
             Files.write(syncDir.resolve("Uninstall.reg"), regUninstall.getBytes());
 
             // now build the restore.reg
-            String regRestore = context.getRegExportUtil().exportToString(regKeysToRemove);
+            String regRestore = getRegExportUtil().exportToString(regKeysToRemove);
             Files.write(syncDir.resolve("Restore.reg"), regRestore.getBytes());
 
             // now write the bats
@@ -114,9 +126,9 @@ public class Project {
 
     public void executeSync() {
         // run the sync task
-        Path syncDir = context.getSyncDir().resolve("Sync_" + fileTimestamp());
+        Path syncDir = getSyncDir().resolve("Sync_" + fileTimestamp());
         exportRegSpecs(syncDir);
-        exportRegSpecs(context.getSyncDir().resolve("Sync_Last"));
+        exportRegSpecs(getSyncDir().resolve("Sync_Last"));
 
         // execute the Uninstall bat
         executeBat(syncDir.resolve("UninstallAll.bat"));
@@ -126,7 +138,7 @@ public class Project {
     }
 
     public void executeUninstall() {
-        Path syncDir = context.getSyncDir().resolve("Uninstall_" + fileTimestamp());
+        Path syncDir = getSyncDir().resolve("Uninstall_" + fileTimestamp());
         exportRegSpecs(syncDir);
 
         // execute the Uninstall bat
@@ -135,9 +147,9 @@ public class Project {
 
     public void executeGenerate() {
         // export the reg specs, but don't actually execute the sync
-        Path syncDir = context.getSyncDir().resolve("Sync_" + fileTimestamp());
+        Path syncDir = getSyncDir().resolve("Sync_" + fileTimestamp());
         exportRegSpecs(syncDir);
-        exportRegSpecs(context.getSyncDir().resolve("Sync_Last"));
+        exportRegSpecs(getSyncDir().resolve("Sync_Last"));
     }
 
     public static String fileTimestamp() {
@@ -150,5 +162,61 @@ public class Project {
 
     public void setContextMenuItems(List<ContextMenuItem> contextMenuItems) {
         this.contextMenuItems = contextMenuItems;
+    }
+
+    public Path getProjectDir() {
+        return projectDir;
+    }
+
+    public void setProjectDir(Path projectDir) {
+        this.projectDir = projectDir;
+    }
+
+    public Path getSyncDir() {
+        return syncDir;
+    }
+
+    public void setSyncDir(Path syncDir) {
+        this.syncDir = syncDir;
+    }
+
+    public RegExportUtil getRegExportUtil() {
+        return regExportUtil;
+    }
+
+    public void setRegExportUtil(RegExportUtil regExportUtil) {
+        this.regExportUtil = regExportUtil;
+    }
+
+    public String getRegId() {
+        return regId;
+    }
+
+    public void setRegId(String regId) {
+        this.regId = regId;
+    }
+
+    public String getOldRegId() {
+        return oldRegId;
+    }
+
+    public void setOldRegId(String oldRegId) {
+        this.oldRegId = oldRegId;
+    }
+
+    public boolean getAutoGenerateRegId() {
+        return autoGenerateRegId;
+    }
+
+    public void setAutoGenerateRegId(boolean autoGenerateRegId) {
+        this.autoGenerateRegId = autoGenerateRegId;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 }

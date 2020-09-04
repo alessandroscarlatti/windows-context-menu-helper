@@ -1,10 +1,10 @@
-package io.github.alessandroscarlatti.project;
+package io.github.alessandroscarlatti.parser;
 
-import io.github.alessandroscarlatti.command.Command;
-import io.github.alessandroscarlatti.command.CommandParser;
-import io.github.alessandroscarlatti.menu.Menu;
-import io.github.alessandroscarlatti.menu.MenuParser;
+import io.github.alessandroscarlatti.model.menu.Command;
 import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
+import io.github.alessandroscarlatti.model.menu.Menu;
+import io.github.alessandroscarlatti.project.Project;
+import io.github.alessandroscarlatti.util.RegExportUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,26 +27,38 @@ public class ProjectParser {
     private static final Logger log = LoggerFactory.getLogger(ProjectParser.class);
 
     private Path projectDir;  // the directory containing this project
-    private ProjectContext projectContext;
-    private ProjectConfig projectConfig;  // the config read from project.properties
-    private Path configFile;  // the project config file (discovered)
 
-    public ProjectParser(ProjectContext projectContext) {
-        this.projectContext = projectContext;
-        this.projectDir = projectContext.getProjectDir();
+    private static final String PROP_REG_ID = "project.reg.id";
+    private static final String PROP_REG_ID_AUTO_GENERATE = "project.reg.id.autogenerate";
+    private static final String PROP_PROJECT_NAME = "project.name";
+
+    public ProjectParser(Path projectDir) {
+        this.projectDir = projectDir;
     }
 
     // build a list of context menu items found within the project dir.
     public Project parseProject() {
         // parse the project config
-        projectConfig = parseProjectConfig();
-        projectContext.setProjectConfig(projectConfig);
+        Project project = new Project();
+
+        Properties projectProperties = overlayProperties(new Properties[]{
+            defaultProjectProperties(), // hardcoded defaults
+            userProjectProperties()     // overlay any user-provided properties
+        });
+
+        project.setProjectDir(projectDir);
+        project.setRegExportUtil(new RegExportUtil(projectDir));
+        project.setSyncDir(projectDir.resolve("Sync"));
+        project.setRegId(projectProperties.getProperty(PROP_REG_ID));
+        project.setOldRegId(projectProperties.getProperty(PROP_REG_ID));
+        project.setAutoGenerateRegId(parseBoolean(projectProperties.getProperty(PROP_REG_ID_AUTO_GENERATE)));
+        project.setProjectName(projectProperties.getProperty(PROP_PROJECT_NAME));
 
         // configure the actual project name
-        buildActualProjectName();
+        buildActualProjectName(project);
 
         // optionally auto-generate a reg id
-        optionallyAutoGenerateRegId();
+        optionallyAutoGenerateRegId(project);
 
         // find the dirs in the project that contain menus or commands
         List<Path> menuDirs = findMenuDirs(projectDir);
@@ -56,12 +68,12 @@ public class ProjectParser {
 
         // now parse these into context menu items
         for (Path menuDir : menuDirs) {
-            Menu menu = new MenuParser(menuDir, projectContext, null).parseMenu();
+            Menu menu = new MenuParser(menuDir, project, null).parseMenu();
             contextMenuItems.add(menu);
         }
 
         for (Path commandDir : commandDirs) {
-            Command command = new CommandParser(commandDir, projectContext, null).parseCommand();
+            Command command = new CommandParser(commandDir, project, null).parseCommand();
             contextMenuItems.add(command);
         }
 
@@ -69,29 +81,21 @@ public class ProjectParser {
         sortContextMenuItems(contextMenuItems);
 
         // create the project
-        return new Project(projectContext, contextMenuItems);
-    }
-
-    private ProjectConfig parseProjectConfig() {
-        Properties commandProperties = overlayProperties(new Properties[]{
-            defaultProjectProperties(), // hardcoded defaults
-            userProjectProperties()     // overlay any user-provided properties
-        });
-
-        return ProjectConfig.fromProperties(commandProperties);
+        project.setContextMenuItems(contextMenuItems);
+        return project;
     }
 
     private Properties defaultProjectProperties() {
         Properties props = new Properties();
-        props.setProperty(ProjectConfig.PROP_REG_ID_AUTO_GENERATE, "true");
-        props.setProperty(ProjectConfig.PROP_REG_ID, "");  // blank so that it will print in the properties file if we have to generate it ourselves
-        props.setProperty(ProjectConfig.PROP_PROJECT_NAME, "");  // blank so that by defualt will use project dir name
+        props.setProperty(PROP_REG_ID_AUTO_GENERATE, "true");
+        props.setProperty(PROP_REG_ID, "");  // blank so that it will print in the properties file if we have to generate it ourselves
+        props.setProperty(PROP_PROJECT_NAME, "");  // blank so that by defualt will use project dir name
         return props;
     }
 
     private Properties userProjectProperties() {
         // can read from a .properties file (if exists)
-        configFile = ProjectParser.findFirstFileByExample(projectDir, "project.properties");
+        Path configFile = ProjectParser.findFirstFileByExample(projectDir, "project.properties");
 
         // user-provided properties file is not required
         if (configFile == null)
@@ -101,22 +105,22 @@ public class ProjectParser {
             return ProjectParser.readPropertiesFile(configFile);
     }
 
-    private void buildActualProjectName() {
-        if (projectConfig.getProjectName().isEmpty()) {
+    private void buildActualProjectName(Project project) {
+        if (project.getProjectName().isEmpty()) {
             // the prop is empty so we need to build it based off of the project dir
-            projectConfig.setProjectName(projectDir.getFileName().toString().replaceAll("\\s", ""));
+            project.setProjectName(projectDir.getFileName().toString().replaceAll("\\s", ""));
         }
     }
 
-    private void optionallyAutoGenerateRegId() {
-        if (!projectConfig.getAutoGenerateRegId())
+    private void optionallyAutoGenerateRegId(Project project) {
+        if (!project.getAutoGenerateRegId())
             return;
 
         log.info("Auto-Generating project registry ID.");
         String regId = projectDir.getFileName().toString().replaceAll("\\s", "");
 
         log.info("Using project reg ID " + regId);
-        projectConfig.setRegId(regId);
+        project.setRegId(regId);
 
 //        // search the registry
 //        MenuRegSpec menuRegSpec = new MenuRegSpec(null, projectContext);

@@ -1,6 +1,7 @@
 package io.github.alessandroscarlatti.project;
 
-import io.github.alessandroscarlatti.model.reg.RegExportUtil;
+import io.github.alessandroscarlatti.util.RegExportUtil;
+import io.github.alessandroscarlatti.parser.ProjectParser;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -13,42 +14,34 @@ public class ProjectParserTest {
 
     @Test
     public void testProjectParser() {
-        ProjectContext context = new ProjectContext();
-        context.setProjectDir(Paths.get("TestProjects/TestProject1"));
-        context.setRegExportUtil(new RegExportUtil(Paths.get("sandbox")));
-
-        ProjectParser projectParser = new ProjectParser(context);
+        ProjectParser projectParser = new ProjectParser(Paths.get("TestProjects/TestProject1"));
         Project project = projectParser.parseProject();
+        project.setRegExportUtil(new RegExportUtil(Paths.get("sandbox")));
 
         System.out.println("done");
     }
 
     @Test
     public void testMenuRegSpec() {
-        ProjectContext context = new ProjectContext();
-        context.setProjectDir(Paths.get("TestProjects/TestProject1"));
-        context.setRegExportUtil(new RegExportUtil(Paths.get("sandbox")));
-        context.setSyncDir(context.getProjectDir().resolve("Sync"));
-
-        ProjectParser projectParser = new ProjectParser(context);
+        ProjectParser projectParser = new ProjectParser(Paths.get("TestProjects/TestProject1"));
         Project project = projectParser.parseProject();
+        project.setRegExportUtil(new RegExportUtil(Paths.get("sandbox")));
+        project.setSyncDir(project.getProjectDir().resolve("Sync"));
+
         project.buildRegSpecs();
-        project.exportRegSpecs("Sync_");
+        project.exportRegSpecs(Paths.get("sandbox/Sync_"));
 
         System.out.println("done");
     }
 
     @Test
     public void testMenuRegSpec2() {
-        ProjectContext context = new ProjectContext();
-        context.setProjectDir(Paths.get("TestProjects/TestProject2"));
-        context.setRegExportUtil(new RegExportUtil(Paths.get("sandbox")));
-        context.setSyncDir(context.getProjectDir().resolve("Sync"));
-
-        ProjectParser projectParser = new ProjectParser(context);
+        ProjectParser projectParser = new ProjectParser(Paths.get("TestProjects/TestProject2"));
         Project project = projectParser.parseProject();
-        project.buildRegSpecs();
+        project.setRegExportUtil(new RegExportUtil(Paths.get("sandbox")));
+        project.setSyncDir(project.getProjectDir().resolve("Sync"));
 
+        project.buildRegSpecs();
         System.out.println("done");
     }
 }

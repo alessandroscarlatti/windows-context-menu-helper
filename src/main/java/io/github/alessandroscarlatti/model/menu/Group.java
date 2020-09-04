@@ -1,8 +1,5 @@
-package io.github.alessandroscarlatti.group;
+package io.github.alessandroscarlatti.model.menu;
 
-import io.github.alessandroscarlatti.command.Command;
-import io.github.alessandroscarlatti.menu.Menu;
-import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
 
 import java.util.ArrayList;

@@ -1,5 +1,6 @@
-package io.github.alessandroscarlatti.model.reg;
+package io.github.alessandroscarlatti.util;
 
+import io.github.alessandroscarlatti.model.reg.RegKey;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;

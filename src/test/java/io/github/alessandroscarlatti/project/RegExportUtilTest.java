@@ -1,6 +1,6 @@
 package io.github.alessandroscarlatti.project;
 
-import io.github.alessandroscarlatti.model.reg.RegExportUtil;
+import io.github.alessandroscarlatti.util.RegExportUtil;
 import io.github.alessandroscarlatti.model.reg.RegKey;
 import org.junit.Test;
 

@@ -1,23 +1,15 @@
-package io.github.alessandroscarlatti.menu;
+package io.github.alessandroscarlatti.parser;
 
-import io.github.alessandroscarlatti.command.Command;
-import io.github.alessandroscarlatti.command.CommandParser;
-import io.github.alessandroscarlatti.group.Group;
-import io.github.alessandroscarlatti.group.GroupParser;
-import io.github.alessandroscarlatti.project.ProjectContext;
-import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
-import io.github.alessandroscarlatti.model.menu.Icon;
-import io.github.alessandroscarlatti.project.ProjectParser;
+import io.github.alessandroscarlatti.model.menu.*;
+import io.github.alessandroscarlatti.project.Project;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static io.github.alessandroscarlatti.menu.MenuConfig.PROP_REG_UID;
-import static io.github.alessandroscarlatti.menu.MenuConfig.PROP_TARGET_DESKTOP_ENABLED;
-import static io.github.alessandroscarlatti.menu.MenuConfig.PROP_TARGET_DIRECTORY_ENABLED;
-import static io.github.alessandroscarlatti.project.ProjectParser.overlayProperties;
+import static io.github.alessandroscarlatti.parser.ProjectParser.overlayProperties;
+import static io.github.alessandroscarlatti.parser.ProjectParser.parseBoolean;
 
 /**
  * @author Alessandro Scarlatti
@@ -26,22 +18,37 @@ import static io.github.alessandroscarlatti.project.ProjectParser.overlayPropert
 public class MenuParser {
 
     private Path menuDir;  // the dir containing this menu
-    private MenuConfig menuConfig;  // the config read from menu.properties
+//    private MenuConfig menuConfig;  // the config read from menu.properties
     private Menu parentMenu;  // the parent menu, may be null if this is the root menu
-    private ProjectContext projectContext;
+    private Project project;
 
-    public MenuParser(Path menuDir, ProjectContext projectContext, Menu parentMenu) {
+    private static final String PROP_REG_UID = "menu.reg.id";
+    private static final String PROP_TARGET_DESKTOP_ENABLED = "menu.target.desktop.enabled";
+    private static final String PROP_TARGET_DIRECTORY_ENABLED = "menu.target.directory.enabled";
+
+    public MenuParser(Path menuDir, Project project, Menu parentMenu) {
         this.menuDir = menuDir;
-        this.projectContext = projectContext;
+        this.project = project;
         this.parentMenu = parentMenu;
     }
 
     public Menu parseMenu() {
         // parse a menu object from this dir
-        menuConfig = parseMenuConfig();
 
         // build a menu
-        Menu menu = new Menu(menuConfig, projectContext);
+        Menu menu = new Menu(project);
+
+        Properties commandProperties = overlayProperties(new Properties[]{
+            defaultMenuProperties(), // hardcoded defaults
+            userMenuProperties()     // overlay any user-provided properties
+        });
+
+        menu.setRegUid(commandProperties.getProperty(PROP_REG_UID));
+        if (menu.getRegUid().isEmpty()) {
+            menu.setRegUid(buildDefaultRegUid());
+        }
+        menu.setTargetDesktopEnabled(parseBoolean(commandProperties.getProperty(PROP_TARGET_DESKTOP_ENABLED)));
+        menu.setTargetDirectoryEnabled(parseBoolean(commandProperties.getProperty(PROP_TARGET_DIRECTORY_ENABLED)));
         menu.setText(parseMenuText());
         menu.setIcon(parseMenuIcon());
 
@@ -54,17 +61,17 @@ public class MenuParser {
 
         // now parse these into context menu items
         for (Path groupDir : groupDirs) {
-            Group group = new GroupParser(groupDir, projectContext, menu).parseGroup();
+            Group group = new GroupParser(groupDir, project, menu).parseGroup();
             contextMenuItems.add(group);
         }
 
         for (Path menuDir : menuDirs) {
-            Menu subMenu = new MenuParser(menuDir, projectContext, menu).parseMenu();
+            Menu subMenu = new MenuParser(menuDir, project, menu).parseMenu();
             contextMenuItems.add(subMenu);
         }
 
         for (Path commandDir : commandDirs) {
-            Command command = new CommandParser(commandDir, projectContext, menu).parseCommand();
+            Command command = new CommandParser(commandDir, project, menu).parseCommand();
             contextMenuItems.add(command);
         }
 
@@ -76,19 +83,6 @@ public class MenuParser {
         }
 
         return menu;
-    }
-
-    private MenuConfig parseMenuConfig() {
-        Properties commandProperties = overlayProperties(new Properties[]{
-            defaultMenuProperties(), // hardcoded defaults
-            userMenuProperties()     // overlay any user-provided properties
-        });
-
-        MenuConfig menuConfig = MenuConfig.fromProperties(commandProperties);
-        if (menuConfig.getRegUid().isEmpty()) {
-            menuConfig.setRegUid(buildDefaultRegUid());
-        }
-        return menuConfig;
     }
 
     private Properties defaultMenuProperties() {
