@@ -8,7 +8,9 @@ import io.github.alessandroscarlatti.project.Project;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static io.github.alessandroscarlatti.parser.ProjectParser.overlayProperties;
+import static io.github.alessandroscarlatti.util.ProjectUtils.findFirstFileByExample;
+import static io.github.alessandroscarlatti.util.ProjectUtils.overlayProperties;
+import static io.github.alessandroscarlatti.util.ProjectUtils.readPropertiesFile;
 
 /**
  * @author Alessandro Scarlatti
@@ -53,7 +55,7 @@ public class CommandParser {
 
     private Properties userCommandProperties() {
         // can read from a .properties file (if exists)
-        Path configFile = ProjectParser.findFirstFileByExample(commandDir, "command.properties");
+        Path configFile = findFirstFileByExample(commandDir, "command.properties");
 
         // user-provided properties file is not required
         if (configFile == null)
@@ -61,11 +63,11 @@ public class CommandParser {
             return new Properties();
         else
             // parse the menu config file
-            return ProjectParser.readPropertiesFile(configFile);
+            return readPropertiesFile(configFile);
     }
 
     private Path parseCommandBat() {
-        return ProjectParser.findFirstFileByExample(commandDir, "command.bat");
+        return findFirstFileByExample(commandDir, "command.bat");
     }
 
     private String parseCommandText() {

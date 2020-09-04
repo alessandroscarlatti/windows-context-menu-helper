@@ -1,6 +1,6 @@
 package io.github.alessandroscarlatti.model.menu;
 
-import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
+import io.github.alessandroscarlatti.reg.RegSpec;
 
 /**
  * @author Alessandro Scarlatti
@@ -9,7 +9,7 @@ import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
 public class Separator implements ContextMenuItem {
 
     @Override
-    public AbstractRegSpec getRegSpec() {
+    public RegSpec getRegSpec() {
         // there is no reg spec right now for a separator
         // since we won't allow it to be a root level context menu item
         return null;

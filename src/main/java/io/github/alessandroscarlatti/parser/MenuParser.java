@@ -8,8 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static io.github.alessandroscarlatti.parser.ProjectParser.overlayProperties;
-import static io.github.alessandroscarlatti.parser.ProjectParser.parseBoolean;
+import static io.github.alessandroscarlatti.util.ProjectUtils.*;
 
 /**
  * @author Alessandro Scarlatti
@@ -99,7 +98,7 @@ public class MenuParser {
 
     private Properties userMenuProperties() {
         // can read from a .properties file (if exists)
-        Path configFile = ProjectParser.findFirstFileByExample(menuDir, "menu.properties");
+        Path configFile = findFirstFileByExample(menuDir, "menu.properties");
 
         // user-provided properties file is not required
         if (configFile == null)
@@ -107,7 +106,7 @@ public class MenuParser {
             return new Properties();
         else
             // parse the menu config file
-            return ProjectParser.readPropertiesFile(configFile);
+            return readPropertiesFile(configFile);
     }
 
     private String parseMenuText() {

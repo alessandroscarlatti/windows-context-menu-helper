@@ -1,6 +1,6 @@
 package io.github.alessandroscarlatti.model.menu;
 
-import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
+import io.github.alessandroscarlatti.reg.RegSpec;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,7 @@ public class Group implements ContextMenuItem {
     }
 
     @Override
-    public AbstractRegSpec getRegSpec() {
+    public RegSpec getRegSpec() {
         return null;
     }
 

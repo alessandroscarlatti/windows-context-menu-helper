@@ -1,8 +1,7 @@
-package io.github.alessandroscarlatti.model.reg;
+package io.github.alessandroscarlatti.reg;
 
 import io.github.alessandroscarlatti.model.menu.Command;
 import io.github.alessandroscarlatti.model.menu.Menu;
-import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
 import io.github.alessandroscarlatti.model.reg.RegKey;
 import io.github.alessandroscarlatti.model.reg.RegValue;
 import io.github.alessandroscarlatti.project.Project;
@@ -16,7 +15,11 @@ import static io.github.alessandroscarlatti.model.reg.RegType.REG_SZ;
  * @author Alessandro Scarlatti
  * @since Tuesday, 10/1/2019
  */
-public class CommandRegSpec extends AbstractRegSpec {
+public class CommandRegSpec implements RegSpec {
+
+    private String regInstall;
+    private String regUninstall;
+    private boolean buildCompleted = false;  // whether this reg spec has been built
 
     // The command we are building reg keys for
     private Command rootCommand;
@@ -33,8 +36,10 @@ public class CommandRegSpec extends AbstractRegSpec {
         this.project = project;
     }
 
-    @Override
-    public void buildSpec() {
+    private void buildSpecIfNecessary() {
+        if (buildCompleted)
+            return;
+
         // this command is in the system context menu since there is no parent.
         rootCommand.setRegName(parseRegName(rootCommand, project));
         hkeyClassesRootDirectoryBackgroundShell = new RegKey(HKCR_DIR_SHELL_PATH + rootCommand.getRegName());
@@ -52,12 +57,12 @@ public class CommandRegSpec extends AbstractRegSpec {
         commandRegKey.addRegValue(new RegValue(null, REG_SZ, rootCommand.getBat().toAbsolutePath().toString()));
 
         // now build the install .reg file
-        String regInstall = project.getRegExportUtil().installToString(hkeyClassesRootDirectoryBackgroundShell);
-        setRegInstall(regInstall);
+        regInstall = project.getRegExportUtil().installToString(hkeyClassesRootDirectoryBackgroundShell);
 
         // now build the uninstall .reg file
-        String regUninstall = project.getRegExportUtil().uninstallToString(hkeyClassesRootDirectoryBackgroundShell);
-        setRegUninstall(regUninstall);
+        regUninstall = project.getRegExportUtil().uninstallToString(hkeyClassesRootDirectoryBackgroundShell);
+
+        buildCompleted = true;
     }
 
     public static String parseRegName(Command command,  Project project) {
@@ -80,29 +85,32 @@ public class CommandRegSpec extends AbstractRegSpec {
         return sb.toString();
     }
 
-    public List<RegKey> getAllRegKeysByPrefix(String prefix) {
+    @Override
+    public String getInstallRegScript() {
+        buildSpecIfNecessary();
+        return regInstall;
+    }
+
+    @Override
+    public String getUninstallRegScript() {
+        buildSpecIfNecessary();
+        return regUninstall;
+    }
+
+    @Override
+    public String getRestorePointRegScript() {
+        buildSpecIfNecessary();
+        return project.getRegExportUtil().exportToString(hkeyClassesRootDirectoryBackgroundShell);
+    }
+
+    private List<RegKey> getAllRegKeysByPrefix(String prefix) {
         // get all the reg keys that would be part of the project
         return project.getRegExportUtil().getChildKeysByPrefix(Arrays.asList(
             new RegKey(HKCR_DIR_SHELL_PATH)
         ), prefix);
     }
 
-    @Override
-    public String writeInstallRegScript() {
-        return getRegInstall();
-    }
-
-    @Override
-    public String writeUninstallRegScript() {
-        return getRegUninstall();
-    }
-
-    @Override
-    public String writeRestorePointRegScript() {
-        return project.getRegExportUtil().exportToString(hkeyClassesRootDirectoryBackgroundShell);
-    }
-
-    public RegKey getHkeyClassesRootDirectoryBackgroundShell() {
+    private RegKey getHkeyClassesRootDirectoryBackgroundShell() {
         return hkeyClassesRootDirectoryBackgroundShell;
     }
 }

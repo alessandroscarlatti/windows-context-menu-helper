@@ -1,6 +1,6 @@
 package io.github.alessandroscarlatti.model.menu;
 
-import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
+import io.github.alessandroscarlatti.reg.RegSpec;
 
 /**
  * @author Alessandro Scarlatti
@@ -9,7 +9,7 @@ import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
 public interface ContextMenuItem {
 
     // get reg spec to use for this item
-    AbstractRegSpec getRegSpec();
+    RegSpec getRegSpec();
 
     // get name to use, eg, a dir "Command_Some Command" => "Command_Some Command"
     String getName();

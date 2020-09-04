@@ -1,6 +1,6 @@
 package io.github.alessandroscarlatti.project;
 
-import io.github.alessandroscarlatti.model.reg.MenuRegSpec;
+import io.github.alessandroscarlatti.reg.MenuRegSpec;
 import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.model.reg.RegKey;
 import io.github.alessandroscarlatti.util.RegExportUtil;
@@ -47,13 +47,6 @@ public class Project {
 
     // this class will contain methods for syncing, installing, uninstalling, reverting, etc.
 
-    public void buildRegSpecs() {
-        for (ContextMenuItem contextMenuItem : contextMenuItems) {
-            if (contextMenuItem.getRegSpec() != null)
-                contextMenuItem.getRegSpec().buildSpec();
-        }
-    }
-
     public void exportRegSpecs(Path syncDir) {
         try {
             // build the install, uninstall, and restore bats
@@ -70,21 +63,21 @@ public class Project {
                     Files.createDirectories(itemSyncDir);
 
                     // create the install script
-                    String installScript = contextMenuItem.getRegSpec().writeInstallRegScript();
+                    String installScript = contextMenuItem.getRegSpec().getInstallRegScript();
                     log.info("INSTALL SCRIPT:");
                     log.info(installScript);
                     Files.write(itemSyncDir.resolve("Install.reg"), installScript.getBytes());
                     installBats.append("reg import \"" + strItemsSyncDir + "\\Install.reg\" & %CHECK_ERROR%\n");
 
                     // create the uninstall script
-                    String uninstallScript = contextMenuItem.getRegSpec().writeUninstallRegScript();
+                    String uninstallScript = contextMenuItem.getRegSpec().getUninstallRegScript();
                     log.info("UNINSTALL SCRIPT:");
                     log.info(uninstallScript);
                     Files.write(itemSyncDir.resolve("Uninstall.reg"), uninstallScript.getBytes());
                     uninstallBats.append("reg import \"" + strItemsSyncDir + "\\Uninstall.reg\" & %CHECK_ERROR%\n");
 
                     // create the restore script
-                    String restoreScript = contextMenuItem.getRegSpec().writeRestorePointRegScript();
+                    String restoreScript = contextMenuItem.getRegSpec().getRestorePointRegScript();
                     log.info("RESTORE SCRIPT:");
                     log.info(restoreScript);
                     Files.write(itemSyncDir.resolve("Restore.reg"), restoreScript.getBytes());

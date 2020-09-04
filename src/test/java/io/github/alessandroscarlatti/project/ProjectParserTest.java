@@ -28,7 +28,6 @@ public class ProjectParserTest {
         project.setRegExportUtil(new RegExportUtil(Paths.get("sandbox")));
         project.setSyncDir(project.getProjectDir().resolve("Sync"));
 
-        project.buildRegSpecs();
         project.exportRegSpecs(Paths.get("sandbox/Sync_"));
 
         System.out.println("done");
@@ -41,7 +40,8 @@ public class ProjectParserTest {
         project.setRegExportUtil(new RegExportUtil(Paths.get("sandbox")));
         project.setSyncDir(project.getProjectDir().resolve("Sync"));
 
-        project.buildRegSpecs();
+        project.getContextMenuItems().get(0).getRegSpec().getInstallRegScript();
+
         System.out.println("done");
     }
 }

@@ -1,7 +1,7 @@
 package io.github.alessandroscarlatti.model.menu;
 
-import io.github.alessandroscarlatti.model.reg.MenuRegSpec;
-import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
+import io.github.alessandroscarlatti.reg.MenuRegSpec;
+import io.github.alessandroscarlatti.reg.RegSpec;
 import io.github.alessandroscarlatti.project.Project;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class Menu implements ContextMenuItem {
 
     // the reg spec to use for this context menu.
     // only a root level menu has a reg spec.
-    private AbstractRegSpec regSpec;
+    private RegSpec regSpec;
 
     public Menu(Project project) {
         regSpec = new MenuRegSpec(this, project);
@@ -104,11 +104,11 @@ public class Menu implements ContextMenuItem {
         this.parent = parent;
     }
 
-    public AbstractRegSpec getRegSpec() {
+    public RegSpec getRegSpec() {
         return regSpec;
     }
 
-    public void setRegSpec(AbstractRegSpec regSpec) {
+    public void setRegSpec(RegSpec regSpec) {
         this.regSpec = regSpec;
     }
 

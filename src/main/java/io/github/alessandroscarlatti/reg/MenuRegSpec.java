@@ -1,8 +1,10 @@
-package io.github.alessandroscarlatti.model.reg;
+package io.github.alessandroscarlatti.reg;
 
 import io.github.alessandroscarlatti.model.menu.Command;
 import io.github.alessandroscarlatti.model.menu.ContextMenuItem;
 import io.github.alessandroscarlatti.model.menu.Menu;
+import io.github.alessandroscarlatti.model.reg.RegKey;
+import io.github.alessandroscarlatti.model.reg.RegValue;
 import io.github.alessandroscarlatti.project.Project;
 
 import java.util.ArrayList;
@@ -17,7 +19,11 @@ import static java.util.stream.Collectors.toList;
  * @author Alessandro Scarlatti
  * @since Tuesday, 10/1/2019
  */
-public class MenuRegSpec extends AbstractRegSpec {
+public class MenuRegSpec implements RegSpec {
+
+    private String regInstall;
+    private String regUninstall;
+    private boolean buildCompleted = false;  // whether this reg spec has been built
 
     // The menu we are building reg keys for
     private Menu rootMenu;
@@ -39,8 +45,10 @@ public class MenuRegSpec extends AbstractRegSpec {
         this.project = project;
     }
 
-    @Override
-    public void buildSpec() {
+    private void buildSpecIfNecessary() {
+        if (buildCompleted)
+            return;
+
         // this menu is the root menu since there is no parent.
         rootMenu.setRegName(parseRegName(rootMenu));
         RegKey regKey = new RegKey(HKCR_DIR_SHELL_PATH + rootMenu.getRegName());
@@ -50,12 +58,12 @@ public class MenuRegSpec extends AbstractRegSpec {
         addMenuDetails(rootMenu, regKey);
 
         // now build the install .reg file
-        String regInstall = project.getRegExportUtil().installToString(getAllSpecRegKeys());
-        setRegInstall(regInstall);
+        regInstall = project.getRegExportUtil().installToString(getAllSpecRegKeys());
 
         // now build the uninstall .reg file
-        String regUninstall = project.getRegExportUtil().uninstallToString(getAllSpecRegKeys());
-        setRegUninstall(regUninstall);
+        regUninstall = project.getRegExportUtil().uninstallToString(getAllSpecRegKeys());
+
+        buildCompleted = true;
     }
 
     private String parseRegName(Menu menu) {
@@ -106,17 +114,19 @@ public class MenuRegSpec extends AbstractRegSpec {
     }
 
     @Override
-    public String writeInstallRegScript() {
-        return getRegInstall();
+    public String getInstallRegScript() {
+        buildSpecIfNecessary();
+        return regInstall;
     }
 
     @Override
-    public String writeUninstallRegScript() {
-        return getRegUninstall();
+    public String getUninstallRegScript() {
+        buildSpecIfNecessary();
+        return regUninstall;
     }
 
     @Override
-    public String writeRestorePointRegScript() {
+    public String getRestorePointRegScript() {
         return project.getRegExportUtil().exportToString(getAllSpecRegKeys());
     }
 

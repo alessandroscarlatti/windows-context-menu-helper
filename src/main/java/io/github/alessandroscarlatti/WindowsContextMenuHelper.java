@@ -23,20 +23,11 @@ public class WindowsContextMenuHelper {
             String strTask = reqProperty("cmh.project.task");
             Path projectDir = Paths.get(reqProperty("cmh.project.dir")).toAbsolutePath().normalize();
 
-            // set up the project context
-//            ProjectContext context = new ProjectContext();
-//            context.setProjectDir(projectDir);  // handled now in the project parser
-//            context.setRegExportUtil(new RegExportUtil(projectDir));  // handled now in the project parser
-//            context.setSyncDir(projectDir.resolve("Sync"));  // handled now in the project parser
-
             // parse the project
             log.info("Parsing project in dir " + projectDir);
             ProjectParser projectParser = new ProjectParser(projectDir);
 
             Project project = projectParser.parseProject();
-
-            // build the reg specs.
-            project.buildRegSpecs();
 
             // run the correct bat based on the specified task
             if (strTask.equals("sync")) {

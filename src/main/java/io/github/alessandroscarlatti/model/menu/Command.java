@@ -1,7 +1,7 @@
 package io.github.alessandroscarlatti.model.menu;
 
-import io.github.alessandroscarlatti.model.reg.CommandRegSpec;
-import io.github.alessandroscarlatti.model.reg.AbstractRegSpec;
+import io.github.alessandroscarlatti.reg.CommandRegSpec;
+import io.github.alessandroscarlatti.reg.RegSpec;
 import io.github.alessandroscarlatti.project.Project;
 
 import java.nio.file.Path;
@@ -22,7 +22,7 @@ public class Command implements ContextMenuItem {
 
     // the reg spec to use for this command
     // only a root level command has a reg spec.
-    private AbstractRegSpec regSpec;
+    private RegSpec regSpec;
 
     public Command(Project project) {
         regSpec = new CommandRegSpec(this, project);
@@ -81,11 +81,11 @@ public class Command implements ContextMenuItem {
         this.parent = parent;
     }
 
-    public AbstractRegSpec getRegSpec() {
+    public RegSpec getRegSpec() {
         return regSpec;
     }
 
-    public void setRegSpec(AbstractRegSpec regSpec) {
+    public void setRegSpec(RegSpec regSpec) {
         this.regSpec = regSpec;
     }
 
